@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # MYSQL Database
+  db:
+    container_name: "ridesharedb"
+    build:
+      context: ./Database
+      dockerfile: Dockerfile
+    networks:
+      - default
+    environment:
+      MYSQL_TCP_PORT: 3308
+      MYSQL_ROOT_PASSWORD: "password"
+    ports:
+      - 3308:3308
+    deploy:
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - ridesharevol:/var/lib/mysql
+
+  # Frontend HTML
+  frontend:
+    container_name: ridesharefrontend
+    depends_on:
+      - database
+      - passengercontainer
+      - drivercontainer
+      - tripcontainer
+    build:
+      context: ./Front-End
+      dockerfile: Dockerfile
+    ports:
+      - 8080:80
+    deploy:
+      restart_policy:
+        condition: on-failure
+  # Passenger Microservice
+  passengercontainer:
+    depends_on:
+      - db
+    build:
+      context: ./Customer
+      dockerfile: Dockerfile
+    container_name: ridesharecustomer
+    ports:
+      - 5000:5000
+
+  # Driver Microservice
+  drivercontainer:
+    depends_on:
+      - db
+    build:
+      context: ./Driver
+      dockerfile: Dockerfile
+    container_name: ridesharedriver
+    ports:
+      - 4000:4000
+
+  
+  # Trip Microservice
+  tripcontainer:
+    depends_on:
+      - db
+    build:
+      context: ./Trip
+      dockerfile: Dockerfile
+    container_name: ridesharetrip
+    ports:
+      - 3000:3000
+
+networks:
+  default: null
+volumes:
+  ridesharevol: null
