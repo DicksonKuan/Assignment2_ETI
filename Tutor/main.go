@@ -45,52 +45,121 @@ func validKey(r *http.Request) bool {
 	}
 }
 
-//Database Functions
-func getTutor(db *sql.DB, email string) Tutor {
-	query := fmt.Sprintf("Select * FROM Customer WHERE EmailAddress= '%s'", email)
-	results, err := db.Query(query)
-	if err != nil {
-		return err.Error()
+//Microservice functions
+func checkMicroservices() {
+	//To check if microservice is online
+	url := [6]string{
+		"http://localhost:5000/api/v1/Tutor/",
+		"http://localhost:5000/api/v1/Modules/",
+		"http://localhost:5000/api/v1/Class/",
+		"http://localhost:5000/api/v1/Student/",
+		"http://localhost:5000/api/v1/RatingAndComments/",
+		"http://localhost:5000/api/v1/Timetable/"
 	}
-	var tutor Tutor
-	for results.Next() {
-		err = results.Scan(&tutor.ID, &tutor.FirstName,
-			&tutor.LastName, &tutor.EmailAddress, &tutor.Password)
-		if err != nil {
-			panic(err.Error())
+	type = := [5]string{"Tutor","Modules","Class","Student","RatingAndComments","Timetable"}
+	for i, s:= range url{
+		response, err := http.Get(s)
+		if err == nil{
+			fmt.println(fmt.Sprintf("'%s' is working"))
+		}else{
+			fmt.println(fmt.Sprintf("'%s' is not working"))
 		}
 	}
-	return tutor
 }
 
-func checkTutorExsist(db *sql.DB, email string) {
-	//To check if tutor exsists and information is accurate
-	query := fmt.Sprintf("Select EmailAddress FROM Tutor WHERE EmailAddress= '%s'", email)
-	results, err := db.Query(query)
+func getTutor(email string) string {
+	url := "http://localhost:5000/api/v1/tutor/" + email
+	response, err := http.Get(url)
 	if err != nil {
+		fmt.Print(err.Error())
+		return nil
+	}
+	if response.StatusCode == http.StatusAccepted {
+		responseData, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			println(err)
+			return nil
+		} else {
+			var tutor Tutor
+			err = json.Unmarshal([]byte(responseData), &tutor)
+			return responseData
+		}
+	}
+	return ""
+}
+
+func checkTutorExsist(email string) bool {
+	//To check if tutor exsists and information is accurate
+	url := "http://localhost:5000/api/v1/tutor/checkTutor/" + email
+	response, err := http.Get(url)
+	if err != nil {
+		fmt.Print(err.Error())
 		return false
 	}
-	var tutor Tutor
-	for results.Next() {
-		// map this type to the record in the table
-		err = results.Scan(&tutor.Email)
+	if response.StatusCode == http.StatusAccepted {
+		responseData, err := ioutil.ReadAll(response.Body)
 		if err != nil {
-			panic(err.Error())
-		} else if tutor.Emailtutor.Email == email {
-			return true
+			println(err)
+			return false
+		} else {
+			var tutor Tutor
+			err = json.Unmarshal([]byte(responseData), &tutor)
+			if err == nil || tutor.Email == email{
+				return true
+			}else{
+				return false
+			}
 		}
 	}
 	return false
 
 }
 
-func putUser(db *sql.DB, tutor Tutor) bool {
-	query := fmt.Sprintf("UPDATE Tutor SET FirstName = '%s', LastName = '%s', MobileNumber= '%s' WHERE EmailAddress = '%s';", tutor.FirstName, tutor.LastName, tutor.MobileNumber, tutor.EmailAddress)
-	_, err := db.Query(query)
+func putUser(tutor Tutor) bool { //Update tutor's profile
+	jsonValue, _ := json.Marshal(tutor)
+	URL := "http://localhost:5000/api/v1/CheckUser/" + tutorEmail
+	
+	request, err := http.NewRequest(http.MethodPut,
+		URL,
+		bytes.NewBuffer(jsonValue))
+
+	request.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+
 	if err != nil {
+		fmt.Printf("The HTTP request failed with error %s\n", err)
 		return false
+	} else {
+		data, _ := ioutil.ReadAll(response.Body)
+		fmt.Println(response.StatusCode)
+		return true
+		response.Body.Close()
 	}
-	return true
+}
+func getMod(tutorEmail string) []string { //get mod from mod microservice
+	URL := "http://localhost:5000/api/v1/CheckUser/" + tutorEmail
+
+	response, err := http.Get(URL)
+	if err != nil {
+		fmt.Print(err.Error())
+		return 0
+	} else if response.StatusCode == http.StatusAccepted {
+		responseData, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			println(err)
+		} else {
+			mods := strings.Split(string(responseData), ",")
+			replacer := strings.NewReplacer(",", "")
+			var newMods []string
+			for i := range mods {
+				newMods = append(newMods, replacer.Replace(mods[i]))
+			}
+			return newMods
+		}
+	}
+	return nil
 }
 
 //API Functions
@@ -104,8 +173,6 @@ func profile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.Header.Get("Content-type") == "application/json" {
-		db = database()
-
 		//Get information from JSON and validation
 		var tutor Tutor
 		reqBody, err := ioutil.ReadAll(r.Body)
@@ -120,7 +187,7 @@ func profile(w http.ResponseWriter, r *http.Request) {
 				w.Write([]byte("Please supply tutor's email"))
 				return
 			}
-			if !checkTutorExsist(db, tutor.Email) { //To check if tutor exsists in the DB
+			if !checkTutorExsist(tutor.Email) { //To check if tutor exsists in the DB
 				w.WriteHeader(http.StatusUnprocessableEntity)
 				w.Write([]byte("There is no exsiting account for " + tutor.Email))
 				return
@@ -129,18 +196,26 @@ func profile(w http.ResponseWriter, r *http.Request) {
 		//Check method
 		if r.Method == "GET" {
 			//To get tutor's profile
-			json.NewEncoder(w).Encode(getTutor(db, tutor.Email))
-			w.WriteHeader(http.StatusAccepted)
+			tutor = getTutor(tutor.Email)
+			if tutor == ""{
+				w.WriteHeader(
+					http.StatusUnprocessableEntity)
+				w.Write([]byte(
+					"Could not retrieve tutor"))
+			}else{
+				json.NewEncoder(w).Encode(tutor)
+				w.WriteHeader(http.StatusAccepted)
+			}
 			return
 		} else if r.Method == "PUT" { //To update tutor's profile
-			if tutor.password == "" {
+			if tutor.password == "" { //Check if password is empty
 				w.WriteHeader(
 					http.StatusUnprocessableEntity)
 				w.Write([]byte(
 					"Please enter password"))
 				return
 			} else {
-				putUser(db, tutor) //Update tutor's profile
+				putUser(tutor) //Update tutor's profile
 				w.WriteHeader(http.StatusAccepted)
 				return
 			}
@@ -149,14 +224,67 @@ func profile(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(
 			http.StatusUnprocessableEntity)
 		w.Write([]byte(
-			"422 - Please supply tutor's information"))
+			"Please supply tutor's information"))
 		return
 	}
 }
 func mod(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	Email := params["Email"]
-	Password := params["Password"]
+	method := params["method"]
+	email := params["tutorEmail"]
+
+	if method == "" || email == "" {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		w.Write([]byte("Please supply tutor's information and valid method"))
+		return
+	} else {
+		switch method {
+		case "getMod":
+			mods := getMod(email)
+			if len(mods) == 0{
+				w.WriteHeader(
+					http.StatusUnprocessableEntity)
+				w.Write([]byte(
+					"Mod list Empty"))
+			}else{
+				json.NewEncoder(w).Encode(JSONObject)
+				w.WriteHeader(http.StatusAccepted)
+			}
+		case "getClassAssigned":
+			classes := getMod(email)
+			if len(mods) == 0{
+				w.WriteHeader(
+					http.StatusUnprocessableEntity)
+				w.Write([]byte(
+					"class list Empty"))
+			}else{
+				json.NewEncoder(w).Encode(JSONObject)
+				w.WriteHeader(http.StatusAccepted)
+			}
+		case "getTimetable":
+			timetable := getMod(email)
+			if len(mods) == 0{
+				w.WriteHeader(
+					http.StatusUnprocessableEntity)
+				w.Write([]byte(
+					"timetable list Empty"))
+			}else{
+				json.NewEncoder(w).Encode(JSONObject)
+				w.WriteHeader(http.StatusAccepted)
+			}
+		case "enrolledStudent":
+			students := getMod(email)
+			if len(mods) == 0{
+				w.WriteHeader(
+					http.StatusUnprocessableEntity)
+				w.Write([]byte(
+					"timetable list Empty"))
+			}else{
+				json.NewEncoder(w).Encode(JSONObject)
+				w.WriteHeader(http.StatusAccepted)
+			}
+		}
+	}
 }
 func details(w http.ResponseWriter, r *http.Request) {
 
@@ -187,9 +315,10 @@ func main() {
 	//3.6.7 List all tutors with ratings.
 	//3.6.8 Search for other tutors.
 	//3.6.9 View other tutor's profile, modules, class, timetable, ratings and comments.
-	router.HandleFunc("/api/v1/tutor/details/{method}", details).Methods("GET")
+	router.HandleFunc("/api/v1/tutor/details/{method}/{tutorEmail}", details).Methods("GET")
 
 	//Establish port
+	checkMicroservices()
 	fmt.Println("Listening at port 5000")
 	log.Fatal(http.ListenAndServe(":5000", handlers.CORS(headers, methods, origins)(router)))
 
