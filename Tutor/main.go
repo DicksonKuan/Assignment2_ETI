@@ -1,15 +1,13 @@
-// package main
+package main
 
 import (
-	"database/sql"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
-	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	handlers "github.com/gorilla/handlers"
@@ -27,31 +25,31 @@ type Tutor struct {
 
 type Student struct {
 	StudentID   int    `json: "StudentID"`
-	Name string `json: "Name"`
-	DateOfBirth  string `json: "DateOfBirth"`
+	Name        string `json: "Name"`
+	DateOfBirth string `json: "DateOfBirth"`
 	Address     string `json: "Address"`
-	Number  string `json: "Number"`
+	Number      string `json: "Number"`
 }
 
 type Class struct {
-	Code   		int    `json: "Code"`
-	Schedule 	string `json: "Schedule"`
-	Capacity  	int `json: "Capacity"`
+	Code     int    `json: "Code"`
+	Schedule string `json: "Schedule"`
+	Capacity int    `json: "Capacity"`
 }
 
 type RatingAndComments struct {
-	TutorID   	int    `json: "TutorID"`
-	Rating 		int `json: "Rating"`
-	Comments  	string `json: "Comments"`
+	TutorID  int    `json: "TutorID"`
+	Rating   int    `json: "Rating"`
+	Comments string `json: "Comments"`
 }
 
 type Module struct {
-	Code   int    `json: "Code"`
-	Name string `json: "Name"`
-	LearningObjective  string `json: "LearningObjective"`
-	Classes     []Class `json: "Classes"`
-	AssignedTutor  int `json: "AssignedTutor"`
-	EnrolledStudent  []Student `json: "EnrolledStudent"`
+	Code               int                 `json: "Code"`
+	Name               string              `json: "Name"`
+	LearningObjective  string              `json: "LearningObjective"`
+	Classes            []Class             `json: "Classes"`
+	AssignedTutor      int                 `json: "AssignedTutor"`
+	EnrolledStudent    []Student           `json: "EnrolledStudent"`
 	RatingsAndComments []RatingAndComments `json: "RatingsAndComments"`
 }
 
@@ -61,18 +59,6 @@ type Timetable struct {
 	LastName  string `json: "LastName"`
 	Email     string `json: "Email"`
 	password  string `json: "Password"`
-}
-
-
-
-//Database
-func database() {
-	db, err := sql.Open("mysql", "root:password@tcp(127.0.0.1:3308)/rideshare") //Connecting to database
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	return db
 }
 
 //Key
@@ -98,43 +84,41 @@ func checkMicroservices() {
 		"http://localhost:5000/api/v1/Class/",
 		"http://localhost:5000/api/v1/Student/",
 		"http://localhost:5000/api/v1/RatingAndComments/",
-		"http://localhost:5000/api/v1/Timetable/"
-	}
-	type = := [5]string{"Tutor","Modules","Class","Student","RatingAndComments","Timetable"}
-	for i, s:= range url{
+		"http://localhost:5000/api/v1/Timetable/"}
+	APItype := [6]string{"Tutor", "Modules", "Class", "Student", "RatingAndComments", "Timetable"}
+	for i, s := range url {
 		response, err := http.Get(s)
-		if err == nil{
-			fmt.println(fmt.Sprintf("'%s' is working"))
-		}else{
-			fmt.println(fmt.Sprintf("'%s' is not working"))
+		if err == nil {
+			println(fmt.Sprintf("%s is working: %s", APItype[i], response.Status))
+		} else {
+			println(fmt.Sprintf("%s is not working", APItype[i]))
 		}
 	}
 }
 
-func getTutor(tutorID int) Tutor {
-	url := "http://localhost:5000/api/v1/tutor/" + tutorID
+func getTutor(tutorIDParam int) Tutor {
+	tutorID := strconv.Itoa(tutorIDParam)
+	url := fmt.Sprintf("http://localhost:5000/api/v1/tutor/%s", tutorID)
 	response, err := http.Get(url)
+	var tutor Tutor
+
 	if err != nil {
 		fmt.Print(err.Error())
-		return nil
 	}
 	if response.StatusCode == http.StatusAccepted {
 		responseData, err := ioutil.ReadAll(response.Body)
 		if err != nil {
 			println(err)
-			return nil
 		} else {
-			var tutor Tutor
 			err = json.Unmarshal([]byte(responseData), &tutor)
-			return responseData
 		}
 	}
-	return nil
+	return tutor
 }
 
 func checkTutorExsist(tutorID int) bool {
 	//To check if tutor exsists and information is accurate
-	url := "http://localhost:5000/api/v1/tutor/checkTutor/" + tutorID
+	url := fmt.Sprintf("http://localhost:5000/api/v1/tutor/checkTutor/%s", strconv.Itoa(tutorID))
 	response, err := http.Get(url)
 	if err != nil {
 		fmt.Print(err.Error())
@@ -148,9 +132,9 @@ func checkTutorExsist(tutorID int) bool {
 		} else {
 			var tutor Tutor
 			err = json.Unmarshal([]byte(responseData), &tutor)
-			if err == nil || tutor.Email == email{
+			if err == nil {
 				return true
-			}else{
+			} else {
 				return false
 			}
 		}
@@ -161,8 +145,8 @@ func checkTutorExsist(tutorID int) bool {
 
 func putUser(tutor Tutor) bool { //Update tutor's profile
 	jsonValue, _ := json.Marshal(tutor)
-	URL := "http://localhost:5000/api/v1/CheckUser/" + tutorEmail
-	
+	URL := fmt.Sprintf("http://localhost:5000/api/v1/CheckUser/%s", tutor.Email)
+
 	request, err := http.NewRequest(http.MethodPut,
 		URL,
 		bytes.NewBuffer(jsonValue))
@@ -176,19 +160,18 @@ func putUser(tutor Tutor) bool { //Update tutor's profile
 		fmt.Printf("The HTTP request failed with error %s\n", err)
 		return false
 	} else {
-		data, _ := ioutil.ReadAll(response.Body)
 		fmt.Println(response.StatusCode)
-		return true
 		response.Body.Close()
+		return true
 	}
 }
 func getMod(tutorID int) []Module { //get mod from mod microservice
-	URL := "http://localhost:5000/api/v1/CheckUser/" + tutorID
+	URL := fmt.Sprintf("http://localhost:5000/api/v1/CheckUser/%s", strconv.Itoa(tutorID))
 
 	response, err := http.Get(URL)
 	if err != nil {
 		fmt.Print(err.Error())
-		return nil	
+		return nil
 	} else if response.StatusCode == http.StatusAccepted {
 		responseData, err := ioutil.ReadAll(response.Body)
 		if err != nil {
@@ -199,64 +182,67 @@ func getMod(tutorID int) []Module { //get mod from mod microservice
 			var newMods []Module
 			err := json.Unmarshal(responseData, &newMods)
 			if err != nil {
-				w.WriteHeader(http.StatusUnprocessableEntity)
-				w.Write([]byte("Error encoding the json."))
-				return
+				panic(err.Error())
 			}
-			// for i := range mods {
-			// 	newMods = append(newMods, replacer.Replace(mods[i]))
-			// }
 			return newMods
 		}
 	}
 	return nil
 }
 
-func getClassAssigned(tutorID int) []Class{
+func getClassAssigned(tutorID int) []Class {
 	//Get Assigned mods
-	var mods = []Module
-	mods := getMod(tutorID)
+	var mods []Module
+	mods = getMod(tutorID)
 
-	//Get all classes 
-	var classesInfo = []Class
-	for i, classCode := range mods.classes{
-		classURL := "http://localhost:5000/api/v1/CheckUser/" + classCode
-		response, err := http.Get(classURL)
-		if err != nil {
-			fmt.Print(err.Error())
-			return nil
-		} else if response.StatusCode == http.StatusAccepted {
-			responseData, err := ioutil.ReadAll(response.Body)
+	//Get all classes
+	var classesInfo []Class
+	for _, modules := range mods {
+		for _, classes := range modules.Classes {
+			classURL := fmt.Sprintf("http://localhost:5000/api/v1/CheckUser/%s", strconv.Itoa(classes.Code))
+			response, err := http.Get(classURL)
 			if err != nil {
-				println(err)
+				fmt.Print(err.Error())
 				return nil
-			} else {
-				classesInfo = append(classesInfo, responseData)
+			} else if response.StatusCode == http.StatusAccepted {
+				responseData, err := ioutil.ReadAll(response.Body)
+				var result Class
+
+				errDecode := json.Unmarshal([]byte(responseData), &result)
+
+				if err != nil || errDecode != nil {
+					println("Error: " + err.Error())
+					println("errDecode: " + errDecode.Error())
+					return nil
+				} else {
+					classesInfo = append(classesInfo)
+				}
 			}
 		}
 	}
 	return classesInfo
 }
 
-func getTimetable(){
+func getTimetable(tutorID int) bool {
 	//Work in progress
+	return false
 }
 
-func getEnrolledStudent(tutorID string) []Student{
+func getEnrolledStudent(tutorID int) []Student {
 	mods := getMod(tutorID)
-	var studentList = []Student
+	var studentList []Student
 	//Get modules from mods list
-	for i, module := range mods{
+	for _, module := range mods {
 		//Get students from the student list
-		for x, student := range module.EnrolledStudent{
+		for _, student := range module.EnrolledStudent {
 			//Check if student exsist in student list
 			checkStudentExsist := true
-			for y, stud := range studentList{
-				if(stud.StudentID == student.StudentID){
+			for _, stud := range studentList {
+				if stud.StudentID == student.StudentID {
 					checkStudentExsist = false
 				}
 			}
-			if(checkStudentExsist==false){
+			if !checkStudentExsist {
 				studentList = append(studentList, student)
 			}
 		}
@@ -264,7 +250,7 @@ func getEnrolledStudent(tutorID string) []Student{
 	return studentList
 }
 
-func getListTutorAndRating() []Tutor{
+func getListTutorAndRating() []Tutor {
 	response, err := http.Get("http://localhost:4000/api/v1/GetAllDriver")
 	if err != nil {
 		fmt.Print(err.Error())
@@ -276,33 +262,43 @@ func getListTutorAndRating() []Tutor{
 		} else {
 			var tutors []Tutor
 			err := json.Unmarshal(responseData, &tutors)
-			if err != nil {
-				w.WriteHeader(http.StatusUnprocessableEntity)
-				w.Write([]byte("Error encoding the json."))
-			}else{
+			if err == nil {
 				return tutors
 			}
 		}
 	}
 	return nil
-})
+}
 
-func getOtherTutor(tutorEmail string){
-	url := "http://localhost:5000/api/v1/tutor/" + tutorEmail	
+func getOtherTutor(tutorEmail string) Tutor {
+	url := "http://localhost:5000/api/v1/tutor/" + tutorEmail
 	response, err := http.Get(url)
+	var tutor Tutor
+
 	if err != nil {
 		fmt.Print(err.Error())
-		return nil
 	}
 	if response.StatusCode == http.StatusAccepted {
 		responseData, err := ioutil.ReadAll(response.Body)
-		if err != nil {
+		if err != nil || json.Unmarshal([]byte(responseData), &tutor) != nil {
 			println(err)
-			return nil
-		} else {
-			var tutors []Tutor
-			err = json.Unmarshal([]byte(responseData), &tutors)
-			return tutors
+		}
+	}
+	return tutor
+}
+
+func viewTutorProfile(tutorEmail string) Tutor {
+	url := "http://localhost:5000/api/v1/tutor/" + tutorEmail
+	response, err := http.Get(url)
+	var tutor Tutor
+
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+	if response.StatusCode == http.StatusAccepted {
+		responseData, err := ioutil.ReadAll(response.Body)
+		if err != nil || json.Unmarshal([]byte(responseData), &tutor) != nil {
+			println(err)
 		}
 	}
 	return tutor
@@ -328,14 +324,9 @@ func profile(w http.ResponseWriter, r *http.Request) {
 			return
 		} else {
 			json.Unmarshal(reqBody, &tutor)
-			if tutor.tutorID == 0 { //To check for information not empty
+			if tutor.TutorID == 0 || !checkTutorExsist(tutor.TutorID) { //To check for information not empty
 				w.WriteHeader(http.StatusUnprocessableEntity)
-				w.Write([]byte("Please supply tutor's tutorID"))
-				return
-			}
-			if !checkTutorExsist(tutor.Email) { //To check if tutor exsists in the DB
-				w.WriteHeader(http.StatusUnprocessableEntity)
-				w.Write([]byte("There is no exsiting account for " + tutor.Email))
+				w.Write([]byte("Please supply a valid tutor's tutorID"))
 				return
 			}
 		}
@@ -343,11 +334,11 @@ func profile(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
 			//To get tutor's profile
 			tutor = getTutor(tutor.TutorID)
-			if tutor == ""{
+			if tutor == (Tutor{}) { //Check if tutor is empty
 				w.WriteHeader(
 					http.StatusUnprocessableEntity)
 				w.Write([]byte("Could not retrieve tutor"))
-			}else{
+			} else {
 				json.NewEncoder(w).Encode(tutor)
 				w.WriteHeader(http.StatusAccepted)
 			}
@@ -374,13 +365,14 @@ func profile(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func mod(w http.ResponseWriter, r *http.Request) {
-	//Get parameter
+	//Get and convert parameter
 	params := mux.Vars(r)
 	method := params["method"]
-	tutorID := params["TutorID"]
+	tutorIDParam := params["TutorID"]
+	tutorID, err := strconv.Atoi(tutorIDParam)
 
 	//To check if param is empty
-	if method == "" || tutorID == "" {
+	if method == "" || err != nil {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		w.Write([]byte("Please supply tutor's information and valid method"))
 		return
@@ -389,46 +381,47 @@ func mod(w http.ResponseWriter, r *http.Request) {
 		switch method {
 		case "getMod":
 			mods := getMod(tutorID)
-			if len(mods) == 0{
+			if len(mods) == 0 {
 				w.WriteHeader(
 					http.StatusUnprocessableEntity)
 				w.Write([]byte(
 					"Mod list Empty"))
-			}else{
-				json.NewEncoder(w).Encode(JSONObject)
+			} else {
+				json.NewEncoder(w).Encode(mods)
 				w.WriteHeader(http.StatusAccepted)
 			}
 		case "getClassAssigned":
 			classes := getClassAssigned(tutorID)
-			if len(classes) == 0{
+			if len(classes) == 0 {
 				w.WriteHeader(
 					http.StatusUnprocessableEntity)
 				w.Write([]byte(
 					"class list Empty"))
-			}else{
-				json.NewEncoder(w).Encode(JSONObject)
+			} else {
+				json.NewEncoder(w).Encode(classes)
 				w.WriteHeader(http.StatusAccepted)
 			}
 		case "getTimetable":
 			timetable := getTimetable(tutorID)
-			if len(timetable) == 0{
-				w.WriteHeader(
-					http.StatusUnprocessableEntity)
-				w.Write([]byte(
-					"timetable list Empty"))
-			}else{
-				json.NewEncoder(w).Encode(JSONObject)
-				w.WriteHeader(http.StatusAccepted)
-			}
+			println(timetable)
+			// if len(timetable) == 0 {
+			// 	w.WriteHeader(
+			// 		http.StatusUnprocessableEntity)
+			// 	w.Write([]byte(
+			// 		"timetable list Empty"))
+			// } else {
+			// 	json.NewEncoder(w).Encode(timetable)
+			// 	w.WriteHeader(http.StatusAccepted)
+			// }
 		case "enrolledStudent":
 			students := getEnrolledStudent(tutorID)
-			if len(students) == 0{
+			if len(students) == 0 {
 				w.WriteHeader(
 					http.StatusUnprocessableEntity)
 				w.Write([]byte(
 					"Student list Empty"))
-			}else{
-				json.NewEncoder(w).Encode(JSONObject)
+			} else {
+				json.NewEncoder(w).Encode(students)
 				w.WriteHeader(http.StatusAccepted)
 			}
 		}
@@ -449,34 +442,34 @@ func details(w http.ResponseWriter, r *http.Request) {
 		switch method {
 		case "getListTutorAndRating":
 			mods := getListTutorAndRating()
-			if len(mods) == 0{
+			if len(mods) == 0 {
 				w.WriteHeader(
 					http.StatusUnprocessableEntity)
 				w.Write([]byte(
-					"tutor list Empty"))
-			}else{
+					"Cannot find list"))
+			} else {
 				json.NewEncoder(w).Encode(mods)
 				w.WriteHeader(http.StatusAccepted)
 			}
 		case "getOtherTutor":
-			classes := getOtherTutor(email)
-			if len(mods) == 0{
+			tutor := getOtherTutor(email)
+			if tutor == (Tutor{}) {
 				w.WriteHeader(
 					http.StatusUnprocessableEntity)
 				w.Write([]byte(
-					"class list Empty"))
-			}else{
-				json.NewEncoder(w).Encode(classes)
+					"Cannot find tutor"))
+			} else {
+				json.NewEncoder(w).Encode(tutor)
 				w.WriteHeader(http.StatusAccepted)
 			}
 		case "viewTutorProfile":
 			tutor := viewTutorProfile(email)
-			if len(mods) == 0{
+			if tutor == (Tutor{}) {
 				w.WriteHeader(
 					http.StatusUnprocessableEntity)
 				w.Write([]byte(
-					"timetable list Empty"))
-			}else{
+					"Cannot find tutor"))
+			} else {
 				json.NewEncoder(w).Encode(tutor)
 				w.WriteHeader(http.StatusAccepted)
 			}
