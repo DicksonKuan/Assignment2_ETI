@@ -100,18 +100,16 @@ func getTutor(tutorIDParam int) Tutor {
 	url := fmt.Sprintf("http://localhost:4000/api/v1/getTutor/%d", tutorIDParam)
 	response, err := http.Get(url)
 	var tutor Tutor
-	println(response.StatusCode == http.StatusAccepted)
 	if err != nil {
 		fmt.Print(err.Error())
 	}
-	if response.StatusCode == 200 {
+	if response.StatusCode == http.StatusAccepted {
 		responseData, err := ioutil.ReadAll(response.Body)
 		if err == nil {
 			err = json.Unmarshal(responseData, &tutor)
 		}
 		println(err)
 	}
-	println(tutor.Email)
 	return tutor
 }
 
@@ -119,30 +117,23 @@ func checkTutorExsist(tutorID int) bool {
 	//To check if tutor exsists and information is accurate
 	url := fmt.Sprintf("http://localhost:4000/api/v1/getTutor/%d", tutorID)
 	response, err := http.Get(url)
+	println(response.StatusCode)
 	if err != nil {
 		fmt.Print(err.Error())
-		return false
 	}
-	if response.StatusCode == 200 {
+	if response.StatusCode == 202 {
 		responseData, err := ioutil.ReadAll(response.Body)
 		if err != nil {
 			println(err)
-			return false
 		} else {
 			var tutor Tutor
 			err = json.Unmarshal([]byte(responseData), &tutor)
 			if err == nil {
 				return true
-			} else {
-				return false
 			}
 		}
 	}
-	return true
-
-	//testing purposes
-	// return false
-
+	return false
 }
 
 func putUser(tutor Tutor) bool { //Update tutor's profile
@@ -325,26 +316,21 @@ func profile(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Content-type") == "application/json" {
 		//Get information from JSON and validation
 		var tutor Tutor
-		reqBody, err := ioutil.ReadAll(r.Body)
-		if err != nil { //To check if parameters are empty
+		params := mux.Vars(r)
+		password := params["Password"]
+		tutorIDParam := params["TutorID"]
+		tutorID, err := strconv.Atoi(tutorIDParam)
+		if tutorID == 0 || !checkTutorExsist(tutorID) || err != nil { //To check for information not empty
 			w.WriteHeader(http.StatusUnprocessableEntity)
-			w.Write([]byte("Please provide tutorID or password"))
+			w.Write([]byte("Please supply a valid tutor's tutorID"))
 			return
-		} else {
-			json.Unmarshal(reqBody, &tutor)
-			if tutor.TutorID == 0 || !checkTutorExsist(tutor.TutorID) { //To check for information not empty
-				w.WriteHeader(http.StatusUnprocessableEntity)
-				w.Write([]byte("Please supply a valid tutor's tutorID"))
-				return
-			}
 		}
 		//Check method
 		if r.Method == "GET" {
 			//To get tutor's profile
-			tutor = getTutor(tutor.TutorID)
+			tutor = getTutor(tutorID)
 			if tutor == (Tutor{}) { //Check if tutor is empty
-				w.WriteHeader(
-					http.StatusUnprocessableEntity)
+				w.WriteHeader(http.StatusUnprocessableEntity)
 				w.Write([]byte("Could not retrieve tutor"))
 			} else {
 				json.NewEncoder(w).Encode(tutor)
@@ -352,11 +338,9 @@ func profile(w http.ResponseWriter, r *http.Request) {
 			}
 			return
 		} else if r.Method == "PUT" { //To update tutor's profile
-			if tutor.Password == "" || !putUser(tutor) { //Check if password is empty
-				w.WriteHeader(
-					http.StatusUnprocessableEntity)
-				w.Write([]byte(
-					"User fail to update"))
+			if password == "" || !putUser(tutor) { //Check if password is empty
+				w.WriteHeader(http.StatusUnprocessableEntity)
+				w.Write([]byte("User fail to update"))
 				return
 			} else {
 				//Update tutor's profile
@@ -387,7 +371,7 @@ func mod(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		//To run function according to the method selected
-		switch method {
+		switch string(method) {
 		case "getMod":
 			mods := getMod(tutorID)
 			if len(mods) == 0 {
@@ -492,7 +476,7 @@ func main() {
 	router := mux.NewRouter()
 	//Web front-end CORS
 	headers := handlers.AllowedHeaders([]string{"X-REQUESTED-With", "Content-Type"})
-	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT"})
+	methods := handlers.AllowedMethods([]string{"GET", "PUT"})
 	origins := handlers.AllowedOrigins([]string{"*"})
 
 	//Test API status
@@ -501,7 +485,7 @@ func main() {
 	//3.6.1 View particular.
 	//3.6.2 Update particular.
 	//JSON, get data using tutorID and tutorPassword
-	router.HandleFunc("/api/v1/tutor/profile", profile).Methods("GET", "PUT")
+	router.HandleFunc("/api/v1/tutor/profile/{TutorID}/{Password}", profile).Methods("GET", "PUT")
 
 	//3.6.3 View mod assigned.
 	//3.6.4 View class assigned.

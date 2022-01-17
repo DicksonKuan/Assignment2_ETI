@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ngee Ann Poly</title>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+	   <!-- Link to Font Awesomwe icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- <link rel="stylesheet" href="css/site.css"> -->
+  </head>
+  <body>
+    <!-- navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Ngee ann</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarScroll">
+          <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+            <li class="nav-item">
+              <a class="nav-link active" href="#">Module</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Find tutors</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Profile</a>
+            </li>
+        </div>
+      </div>
+    </nav>
+
+
+    <!-- Body -->
+    <script type="text/javascript">
+      function APIFunction(method, url, data){
+        $.ajax({
+          type: "GET",
+          url: url,
+          dataType: "json",
+          // data: JSON.stringify(data),
+          contentType: "application/json",
+          success: function(result, status, xhr){
+            if(method == "getTutor"){
+              $("#tutorName").html(result["FirstName"]+" "+result["LastName"]);
+            }else if(method == "getMods"){
+              var table = $('<table class="table"><thead><tr><th scope="col">Code</th><th scope="col">Name</th>  <th scope="col">Assigned Tutor</th></tr></thead>');
+              for(var i in result){
+                table.append("<tr>");
+                table.append("<th scope='row'>"+result[i]["Code"]+"</th>");
+                table.append("<td>"+result[i]["Name"]+"</td>");
+                table.append("<td>"+result[i]["AssignedTutor"]+"</td>");
+                table.append("</tr>");
+              }
+              table.append('</table>');
+              $("#dataTable").html(table);
+            }
+          },
+          error: function(xhr, status, error){
+            alert("Error Message: "+ xhr.responseText);
+          }
+        });
+      }
+    </script>
+    <div class="container w-100 mt-5">
+      <div class="card text-center">
+        <div class="card-header" id="tutorName">
+          John
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">My modules</h5>
+          <div id="dataTable">
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- footer  -->
+    <script type="text/javascript">
+      function APITest(){
+        $.ajax({
+          url:"http://localhost:5000/api/v1/tutor",
+          contentType: "application/json",
+          success: function(result,status, xhr){
+            $("#status").text("API status: Working");
+          },
+          error: function(xhr, status, error){
+            $("#Status").text("API status: "+status);
+          }
+        })
+      }
+      APITest();
+      var user ={
+        TutorID: 1,
+        Password: 'password',
+        FirstName: "John",
+        LastName: 'Lee',
+        Email: "Lee@np.com"
+      }
+      APIFunction("getTutor", "http://localhost:5000/api/v1/tutor/profile/1/'Password'?key=2c78afaf-97da-4816-bbee-9ad239abb296",user);
+      APIFunction("getMods", 'http://localhost:5000/api/v1/tutor/mod/'+"getMod"+'/1?key=2c78afaf-97da-4816-bbee-9ad239abb296',user);
+
+    </script>
+    <div class="container-fluid w-100 mt-5">
+      <p id="status">API Status: Failed</p>
+    </div>
+  </body>
+</html>
