@@ -1,0 +1,28 @@
+Testing API
+curl http://localhost:5000/api/v1/tutor
+
+Profile 
+GET Tutor
+curl -H "Content-Type:application/json" -X GET http://localhost:5000/api/v1/tutor/profile?key=2c78afaf-97da-4816-bbee-9ad239abb296 -d "{\"TutorID\":5,\"FirstName\":\"Ethan\",\"LastName\":\"Leong\",\"Email\":\"email@email.com\",\"Password\":\"password\"}"
+
+PUT 
+curl -H "Content-Type:application/json" -X PUT http://localhost:5000/api/v1/tutor/profile?key=2c78afaf-97da-4816-bbee-9ad239abb296 -d "{\"TutorID\":5,\"FirstName\":\"Ethan\",\"LastName\":\"Leong\",\"Email\":\"email@email.com\",\"Password\":\"password\"}"
+
+GET Mod
+curl http://localhost:5000/api/v1/tutor/mod/"getMod"/1
+
+GET classassigned 
+curl http://localhost:5000/api/v1/tutor/mod/"getClassAssigned"/1
+
+GET enrolledStudent 
+curl http://localhost:5000/api/v1/tutor/mod/"enrolledStudent"/1
+
+Details
+GET getListTutorAndRating 
+curl http://localhost:5000/api/v1/tutor/details/"getListTutorAndRating"/"ethan@np.com"
+
+GET otherTutor
+curl -H "Content-Type:application/json" -X GET http://localhost:5000/api/v1/tutor/details/"getOtherTutor"/"Ethen@np.com"
+
+GET viewOtherProfile
+curl -H "Content-Type:application/json" -X GET http://localhost:5000/api/v1/tutor/details/"viewTutorProfile"/"Ethen@np.com"

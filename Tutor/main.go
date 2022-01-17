@@ -20,7 +20,7 @@ type Tutor struct {
 	FirstName string `json: "FirstName"`
 	LastName  string `json: "LastName"`
 	Email     string `json: "Email"`
-	password  string `json: "Password"`
+	Password  string `json: "Password"`
 }
 
 type Student struct {
@@ -97,34 +97,33 @@ func checkMicroservices() {
 }
 
 func getTutor(tutorIDParam int) Tutor {
-	tutorID := strconv.Itoa(tutorIDParam)
-	url := fmt.Sprintf("http://localhost:5000/api/v1/tutor/%s", tutorID)
+	url := fmt.Sprintf("http://localhost:4000/api/v1/getTutor/%d", tutorIDParam)
 	response, err := http.Get(url)
 	var tutor Tutor
-
+	println(response.StatusCode == http.StatusAccepted)
 	if err != nil {
 		fmt.Print(err.Error())
 	}
-	if response.StatusCode == http.StatusAccepted {
+	if response.StatusCode == 200 {
 		responseData, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			println(err)
-		} else {
-			err = json.Unmarshal([]byte(responseData), &tutor)
+		if err == nil {
+			err = json.Unmarshal(responseData, &tutor)
 		}
+		println(err)
 	}
+	println(tutor.Email)
 	return tutor
 }
 
 func checkTutorExsist(tutorID int) bool {
 	//To check if tutor exsists and information is accurate
-	url := fmt.Sprintf("http://localhost:5000/api/v1/tutor/checkTutor/%s", strconv.Itoa(tutorID))
+	url := fmt.Sprintf("http://localhost:4000/api/v1/getTutor/%d", tutorID)
 	response, err := http.Get(url)
 	if err != nil {
 		fmt.Print(err.Error())
 		return false
 	}
-	if response.StatusCode == http.StatusAccepted {
+	if response.StatusCode == 200 {
 		responseData, err := ioutil.ReadAll(response.Body)
 		if err != nil {
 			println(err)
@@ -139,39 +138,45 @@ func checkTutorExsist(tutorID int) bool {
 			}
 		}
 	}
-	return false
+	return true
+
+	//testing purposes
+	// return false
 
 }
 
 func putUser(tutor Tutor) bool { //Update tutor's profile
 	jsonValue, _ := json.Marshal(tutor)
-	URL := fmt.Sprintf("http://localhost:5000/api/v1/CheckUser/%s", tutor.Email)
+	URL := "http://localhost:4000/api/v1/putTutor"
 
 	request, err := http.NewRequest(http.MethodPut,
 		URL,
 		bytes.NewBuffer(jsonValue))
 
-	request.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	response, err := client.Do(request)
-
 	if err != nil {
-		fmt.Printf("The HTTP request failed with error %s\n", err)
-		return false
+		println(err.Error())
 	} else {
-		fmt.Println(response.StatusCode)
-		response.Body.Close()
-		return true
+		request.Header.Set("Content-Type", "application/json")
+
+		client := &http.Client{}
+		response, err := client.Do(request)
+
+		if err != nil {
+			fmt.Printf("The HTTP request failed with error %s\n", err)
+		} else {
+			fmt.Println(response.StatusCode)
+			response.Body.Close()
+			return true
+		}
 	}
+	return false
 }
 func getMod(tutorID int) []Module { //get mod from mod microservice
-	URL := fmt.Sprintf("http://localhost:5000/api/v1/CheckUser/%s", strconv.Itoa(tutorID))
-
+	//URL := fmt.Sprintf("http://localhost:5000/api/v1/CheckUser/%s", strconv.Itoa(tutorID))
+	URL := "http://localhost:4000/api/v1/getMod"
 	response, err := http.Get(URL)
 	if err != nil {
 		fmt.Print(err.Error())
-		return nil
 	} else if response.StatusCode == http.StatusAccepted {
 		responseData, err := ioutil.ReadAll(response.Body)
 		if err != nil {
@@ -192,33 +197,33 @@ func getMod(tutorID int) []Module { //get mod from mod microservice
 
 func getClassAssigned(tutorID int) []Class {
 	//Get Assigned mods
-	var mods []Module
-	mods = getMod(tutorID)
+	mods := getMod(tutorID)
 
 	//Get all classes
 	var classesInfo []Class
 	for _, modules := range mods {
-		for _, classes := range modules.Classes {
-			classURL := fmt.Sprintf("http://localhost:5000/api/v1/CheckUser/%s", strconv.Itoa(classes.Code))
-			response, err := http.Get(classURL)
-			if err != nil {
-				fmt.Print(err.Error())
-				return nil
-			} else if response.StatusCode == http.StatusAccepted {
-				responseData, err := ioutil.ReadAll(response.Body)
-				var result Class
+		// for _, classes := range modules.Classes {
+		// 	classURL := fmt.Sprintf("http://localhost:5000/api/v1/CheckUser/%s", strconv.Itoa(classes.Code))
+		// 	response, err := http.Get(classURL)
+		// 	if err != nil {
+		// 		fmt.Print(err.Error())
+		// 		return nil
+		// 	} else if response.StatusCode == http.StatusAccepted {
+		// 		responseData, err := ioutil.ReadAll(response.Body)
+		// 		var result Class
 
-				errDecode := json.Unmarshal([]byte(responseData), &result)
+		// 		errDecode := json.Unmarshal([]byte(responseData), &result)
 
-				if err != nil || errDecode != nil {
-					println("Error: " + err.Error())
-					println("errDecode: " + errDecode.Error())
-					return nil
-				} else {
-					classesInfo = append(classesInfo)
-				}
-			}
-		}
+		// 		if err != nil || errDecode != nil {
+		// 			println("Error: " + err.Error())
+		// 			println("errDecode: " + errDecode.Error())
+		// 			return nil
+		// 		} else {
+		// 			classesInfo = append(classesInfo, classes)
+		// 		}
+		// 	}
+		// }
+		classesInfo = append(classesInfo, modules.Classes...)
 	}
 	return classesInfo
 }
@@ -242,7 +247,7 @@ func getEnrolledStudent(tutorID int) []Student {
 					checkStudentExsist = false
 				}
 			}
-			if !checkStudentExsist {
+			if checkStudentExsist {
 				studentList = append(studentList, student)
 			}
 		}
@@ -250,8 +255,9 @@ func getEnrolledStudent(tutorID int) []Student {
 	return studentList
 }
 
-func getListTutorAndRating() []Tutor {
-	response, err := http.Get("http://localhost:4000/api/v1/GetAllDriver")
+func getListTutorAndRating() []RatingAndComments {
+	//Need to improve by adding new structure
+	response, err := http.Get("http://localhost:4000/api/v1/getRatingData")
 	if err != nil {
 		fmt.Print(err.Error())
 	}
@@ -260,10 +266,10 @@ func getListTutorAndRating() []Tutor {
 		if err != nil {
 			println(err)
 		} else {
-			var tutors []Tutor
-			err := json.Unmarshal(responseData, &tutors)
+			var data []RatingAndComments
+			err := json.Unmarshal(responseData, &data)
 			if err == nil {
-				return tutors
+				return data
 			}
 		}
 	}
@@ -271,7 +277,8 @@ func getListTutorAndRating() []Tutor {
 }
 
 func getOtherTutor(tutorEmail string) Tutor {
-	url := "http://localhost:5000/api/v1/tutor/" + tutorEmail
+	//url := "http://localhost:5000/api/v1/tutor/" + tutorEmail
+	url := "http://localhost:4000/api/v1/getTutor/1"
 	response, err := http.Get(url)
 	var tutor Tutor
 
@@ -288,7 +295,8 @@ func getOtherTutor(tutorEmail string) Tutor {
 }
 
 func viewTutorProfile(tutorEmail string) Tutor {
-	url := "http://localhost:5000/api/v1/tutor/" + tutorEmail
+	//url := "http://localhost:5000/api/v1/tutor/" + tutorEmail
+	url := "http://localhost:4000/api/v1/getTutor/1"
 	response, err := http.Get(url)
 	var tutor Tutor
 
@@ -344,15 +352,16 @@ func profile(w http.ResponseWriter, r *http.Request) {
 			}
 			return
 		} else if r.Method == "PUT" { //To update tutor's profile
-			if tutor.password == "" { //Check if password is empty
+			if tutor.Password == "" || !putUser(tutor) { //Check if password is empty
 				w.WriteHeader(
 					http.StatusUnprocessableEntity)
 				w.Write([]byte(
-					"Please enter password"))
+					"User fail to update"))
 				return
 			} else {
-				putUser(tutor) //Update tutor's profile
+				//Update tutor's profile
 				w.WriteHeader(http.StatusAccepted)
+				w.Write([]byte("Account updated"))
 				return
 			}
 		}
@@ -441,14 +450,14 @@ func details(w http.ResponseWriter, r *http.Request) {
 	} else {
 		switch method {
 		case "getListTutorAndRating":
-			mods := getListTutorAndRating()
-			if len(mods) == 0 {
+			data := getListTutorAndRating()
+			if len(data) == 0 {
 				w.WriteHeader(
 					http.StatusUnprocessableEntity)
 				w.Write([]byte(
 					"Cannot find list"))
 			} else {
-				json.NewEncoder(w).Encode(mods)
+				json.NewEncoder(w).Encode(data)
 				w.WriteHeader(http.StatusAccepted)
 			}
 		case "getOtherTutor":
@@ -506,7 +515,7 @@ func main() {
 	router.HandleFunc("/api/v1/tutor/details/{method}/{email}", details).Methods("GET")
 
 	//Establish port
-	checkMicroservices()
+	//checkMicroservices()
 	fmt.Println("Listening at port 5000")
 	log.Fatal(http.ListenAndServe(":5000", handlers.CORS(headers, methods, origins)(router)))
 
