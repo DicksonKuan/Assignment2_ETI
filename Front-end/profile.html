@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ngee Ann Poly</title>
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <!-- Popper JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+   <!-- Link to Font Awesomwe icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- <link rel="stylesheet" href="css/site.css"> -->
+</head>
+  <body>
+    <!-- navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Ngee ann</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarScroll">
+          <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Module</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Find tutors</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="#">Profile</a>
+            </li>
+        </div>
+      </div>
+    </nav>
+
+    <!-- body -->
+    <script type="text/javascript">
+      function API(form,method){
+        var tutorID = form.TutorID;
+        var password = form.Password;
+        var jsonString ={}
+        if(method == "PUT"){
+          event.preventDefault()
+          //const FormDataValue = new FormData(form); //Collect form data
+          tutorID = form.TutorID.value;
+          password = form.Password.value
+          for(let[name,value] of new FormData(form)){
+            if(name == "TutorID") jsonString[name] = parseInt(value);
+            else jsonString[name] = value
+          }
+        }
+        var key = "?key=2c78afaf-97da-4816-bbee-9ad239abb296";
+        $.ajax({
+          type: method,
+          url: "http://localhost:5000/api/v1/tutor/profile/"+tutorID+"/'"+password+"'"+key,
+          dataType: "json",
+          data: JSON.stringify(jsonString),
+          contentType: "application/json",
+          success: function(result, status, xhr){
+            $("#TutorID").val(result.TutorID);
+            $("#FirstName").val(result.FirstName);
+            $("#LastName").val(result.LastName);
+            $("#Email").val(result.Email);
+            $("#Password").val(result.Password);
+          },
+          error: function(xhr, status, error){
+            if(method == "PUT"){
+              alert(xhr.responseText);
+              $("#Password").val();
+            }else{alert("Error Message: "+ xhr.responseText);}
+          }
+        });
+      }
+      var tutorData = {TutorID: 1, Password:"Password"}
+      API(tutorData, 'GET');
+    </script>
+    <div class="container mt-5 w-100">
+      <div id="dataTable">
+        <form class="" onsubmit="API(this, 'PUT')" method="post">
+          <div class="form-group">
+            <input type="number" name="TutorID" value=1 class="form-control" id="TutorID" hidden>
+          </div>
+          <div class="form-group">
+            <label for="Name">First name</label>
+            <input type="text" name="FirstName" value="" class="form-control" id="FirstName">
+          </div>
+          <div class="form-group">
+            <label for="LastName">Last name</label>
+            <input type="text" name="LastName" value="" class="form-control" id="LastName">
+          </div>
+          <div class="form-group">
+            <label for="Email">Email</label>
+            <input type="text" name="Email" value="" class="form-control" id="Email">
+          </div>
+          <div class="form-group">
+            <label for="Password">Password</label>
+            <input type="password" name="Password" value="" class="form-control" id="Password">
+          </div>
+          <button type="submit" name="button" class="btn btn-dark">Submit</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

@@ -55,16 +55,12 @@ func test(w http.ResponseWriter, r *http.Request) {
 }
 
 func getTutor(w http.ResponseWriter, r *http.Request) {
-	jsonString :=
-		`{
-			"TutorID": 1,
-			"FirstName": "John",
-			"LastName": "Lee",
-			"Email": "Lee@np.com",
-			"Password": "password"
-		}`
 	var tutor Tutor
-	json.Unmarshal([]byte(jsonString), &tutor)
+	tutor.TutorID = 1
+	tutor.FirstName = "John"
+	tutor.LastName = "Lee"
+	tutor.Email = "JohnLee@np.com"
+	tutor.password = "Password"
 	w.WriteHeader(http.StatusAccepted)
 	json.NewEncoder(w).Encode(tutor)
 	return
@@ -79,12 +75,12 @@ func putTutor(w http.ResponseWriter, r *http.Request) {
 			err := json.Unmarshal(reqBody, &tutor)
 			if err != nil {
 				fmt.Printf("There was an error encoding the json. err = %s", err)
-			} else if tutor.Email != "" {
+			} else if tutor.Email != "" || tutor.password != "" {
 				w.WriteHeader(http.StatusCreated)
 				w.Write([]byte("Account has bee created successfully"))
 			} else {
 				w.WriteHeader(http.StatusUnprocessableEntity)
-				w.Write([]byte("This email address is in use"))
+				w.Write([]byte("Please enter Email"))
 			}
 		}
 	}
@@ -100,10 +96,18 @@ func getMod(w http.ResponseWriter, r *http.Request) {
 	mods.Name = "Math"
 	mods.RatingsAndComments = []RatingAndComments{RatingAndComments{1, 1, "good"}, RatingAndComments{2, 2, "Very good"}}
 	mods.EnrolledStudent = []Student{Student{1, "john", "28 July", "25 west coast", "1234567"}, Student{2, "Susan", "28 July", "25 west coast", "1234567"}}
-	mods.Classes = []Class{Class{1, "8.00", 1}, Class{1, "8.30", 1}}
+	mods.Classes = []Class{Class{1, "8.00Am - 9.00Am", 1}, Class{2, "8.30Am - 9.30Am", 1}}
 
-	modList := [2]Module{mods, mods}
-	println(json.Marshal(mods))
+	var mods2 Module
+	mods2.AssignedTutor = 2
+	mods2.Code = 2
+	mods2.LearningObjective = "English"
+	mods2.Name = "English"
+	mods2.RatingsAndComments = []RatingAndComments{RatingAndComments{1, 1, "good"}, RatingAndComments{2, 2, "Very good"}}
+	mods2.EnrolledStudent = []Student{Student{1, "john", "28 July", "25 west coast", "1234567"}, Student{2, "Susan", "28 July", "25 west coast", "1234567"}}
+	mods2.Classes = []Class{Class{1, "8.15Am - 9.15Am", 1}, Class{2, "8.45Am - 9.45Am", 1}}
+
+	modList := [2]Module{mods2, mods}
 	w.WriteHeader(http.StatusAccepted)
 	json.NewEncoder(w).Encode(modList)
 	return
@@ -127,7 +131,7 @@ func main() {
 	router.HandleFunc("/api/v1/tutor", test)
 
 	router.HandleFunc("/api/v1/getTutor/{tutorID}", getTutor).Methods("GET")
-	router.HandleFunc("/api/v1/putTutor", getTutor).Methods("PUT")
+	router.HandleFunc("/api/v1/putTutor", putTutor).Methods("PUT")
 	router.HandleFunc("/api/v1/getMod", getMod).Methods("GET")
 	router.HandleFunc("/api/v1/getRatingData", getRatingData).Methods("GET")
 

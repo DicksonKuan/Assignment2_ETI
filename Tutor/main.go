@@ -117,7 +117,6 @@ func checkTutorExsist(tutorID int) bool {
 	//To check if tutor exsists and information is accurate
 	url := fmt.Sprintf("http://localhost:4000/api/v1/getTutor/%d", tutorID)
 	response, err := http.Get(url)
-	println(response.StatusCode)
 	if err != nil {
 		fmt.Print(err.Error())
 	}
@@ -155,10 +154,12 @@ func putUser(tutor Tutor) bool { //Update tutor's profile
 		if err != nil {
 			fmt.Printf("The HTTP request failed with error %s\n", err)
 		} else {
-			fmt.Println(response.StatusCode)
-			response.Body.Close()
-			return true
+			if response.StatusCode == http.StatusCreated {
+				response.Body.Close()
+				return true
+			}
 		}
+		response.Body.Close()
 	}
 	return false
 }
@@ -193,27 +194,6 @@ func getClassAssigned(tutorID int) []Class {
 	//Get all classes
 	var classesInfo []Class
 	for _, modules := range mods {
-		// for _, classes := range modules.Classes {
-		// 	classURL := fmt.Sprintf("http://localhost:5000/api/v1/CheckUser/%s", strconv.Itoa(classes.Code))
-		// 	response, err := http.Get(classURL)
-		// 	if err != nil {
-		// 		fmt.Print(err.Error())
-		// 		return nil
-		// 	} else if response.StatusCode == http.StatusAccepted {
-		// 		responseData, err := ioutil.ReadAll(response.Body)
-		// 		var result Class
-
-		// 		errDecode := json.Unmarshal([]byte(responseData), &result)
-
-		// 		if err != nil || errDecode != nil {
-		// 			println("Error: " + err.Error())
-		// 			println("errDecode: " + errDecode.Error())
-		// 			return nil
-		// 		} else {
-		// 			classesInfo = append(classesInfo, classes)
-		// 		}
-		// 	}
-		// }
 		classesInfo = append(classesInfo, modules.Classes...)
 	}
 	return classesInfo
@@ -313,38 +293,47 @@ func profile(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("401 - Invalid key"))
 		return
 	}
-	if r.Header.Get("Content-type") == "application/json" {
-		//Get information from JSON and validation
-		var tutor Tutor
-		params := mux.Vars(r)
-		password := params["Password"]
-		tutorIDParam := params["TutorID"]
-		tutorID, err := strconv.Atoi(tutorIDParam)
-		if tutorID == 0 || !checkTutorExsist(tutorID) || err != nil { //To check for information not empty
+
+	//Get information from JSON and validation
+	var tutor Tutor
+	params := mux.Vars(r)
+	//password := params["Password"]
+	tutorIDParam := params["TutorID"]
+	tutorID, err := strconv.Atoi(tutorIDParam)
+	if tutorID == 0 || !checkTutorExsist(tutorID) || err != nil { //To check for information not empty
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		w.Write([]byte("Please supply a valid tutor's tutorID"))
+		return
+	}
+	//Check method
+	if r.Method == "GET" {
+		//To get tutor's profile
+		tutor = getTutor(tutorID)
+		if tutor == (Tutor{}) { //Check if tutor is empty
 			w.WriteHeader(http.StatusUnprocessableEntity)
-			w.Write([]byte("Please supply a valid tutor's tutorID"))
-			return
+			w.Write([]byte("Could not retrieve tutor"))
+		} else {
+			json.NewEncoder(w).Encode(tutor)
+			w.WriteHeader(http.StatusAccepted)
 		}
-		//Check method
-		if r.Method == "GET" {
-			//To get tutor's profile
-			tutor = getTutor(tutorID)
-			if tutor == (Tutor{}) { //Check if tutor is empty
-				w.WriteHeader(http.StatusUnprocessableEntity)
-				w.Write([]byte("Could not retrieve tutor"))
-			} else {
-				json.NewEncoder(w).Encode(tutor)
-				w.WriteHeader(http.StatusAccepted)
+		return
+	} else if r.Header.Get("Content-type") == "application/json" {
+		if r.Method == "PUT" { //To update tutor's profile
+			//Unmarshal JSON
+			reqBody, err1 := ioutil.ReadAll(r.Body)
+			if err1 != nil {
+				println(err1.Error())
 			}
-			return
-		} else if r.Method == "PUT" { //To update tutor's profile
-			if password == "" || !putUser(tutor) { //Check if password is empty
+			defer r.Body.Close()
+			var newTutorData Tutor
+			err = json.Unmarshal(reqBody, &newTutorData)
+			if !putUser(newTutorData) || err != nil { //Check if password is empty
 				w.WriteHeader(http.StatusUnprocessableEntity)
 				w.Write([]byte("User fail to update"))
 				return
 			} else {
 				//Update tutor's profile
-				w.WriteHeader(http.StatusAccepted)
+				w.WriteHeader(http.StatusOK)
 				w.Write([]byte("Account updated"))
 				return
 			}
