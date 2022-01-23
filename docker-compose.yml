@@ -14,11 +14,11 @@ services:
         condition: on-failure
     image: jiameelorh/eti-tutorfrontend
   # Tutor Microservice
-  tutorcontainer:
+  tutorcontainerS10192803:
     build:
       context: ./Tutor
       dockerfile: Dockerfile
-    container_name: tutorcontainer
+    container_name: tutorcontainerS10192803
     ports:
       - 9031:9031
     image: jiameelorh/eti-tutorcontainer
