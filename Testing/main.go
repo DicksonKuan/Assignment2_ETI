@@ -135,6 +135,6 @@ func main() {
 	router.HandleFunc("/api/v1/getMod", getMod).Methods("GET")
 	router.HandleFunc("/api/v1/getRatingData", getRatingData).Methods("GET")
 
-	fmt.Println("Listening at port 4000")
-	log.Fatal(http.ListenAndServe(":4000", handlers.CORS(headers, methods, origins)(router)))
+	fmt.Println("Listening at port 9032")
+	log.Fatal(http.ListenAndServe(":9032", handlers.CORS(headers, methods, origins)(router)))
 }

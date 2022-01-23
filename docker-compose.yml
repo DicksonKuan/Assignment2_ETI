@@ -1,74 +1,37 @@
-version: '3.8'
+version: '3.3'
 
 services:
-  # MYSQL Database
-  db:
-    container_name: "ridesharedb"
-    build:
-      context: ./Database
-      dockerfile: Dockerfile
-    networks:
-      - default
-    environment:
-      MYSQL_TCP_PORT: 3308
-      MYSQL_ROOT_PASSWORD: "password"
-    ports:
-      - 3308:3308
-    deploy:
-      restart_policy:
-        condition: on-failure
-    volumes:
-      - ridesharevol:/var/lib/mysql
-
   # Frontend HTML
   frontend:
-    container_name: ridesharefrontend
-    depends_on:
-      - database
-      - passengercontainer
-      - drivercontainer
-      - tripcontainer
+    container_name: "tutorfrontend"
     build:
-      context: ./Front-End
+      context: ./Front-end
       dockerfile: Dockerfile
     ports:
-      - 8080:80
+      - 9030:80
     deploy:
       restart_policy:
         condition: on-failure
-  # Passenger Microservice
-  passengercontainer:
-    depends_on:
-      - db
+    image: jiameelorh/eti-tutorfrontend
+  # Tutor Microservice
+  tutorcontainer:
     build:
-      context: ./Customer
+      context: ./Tutor
       dockerfile: Dockerfile
-    container_name: ridesharecustomer
+    container_name: tutorcontainer
     ports:
-      - 5000:5000
+      - 9031:9031
+    image: jiameelorh/eti-tutorcontainer
 
-  # Driver Microservice
-  drivercontainer:
-    depends_on:
-      - db
+  # Testing Microservice
+  testingcontainer:
     build:
-      context: ./Driver
+      context: ./Testing
       dockerfile: Dockerfile
-    container_name: ridesharedriver
+    container_name: testingcontainer
     ports:
-      - 4000:4000
-
-  
-  # Trip Microservice
-  tripcontainer:
-    depends_on:
-      - db
-    build:
-      context: ./Trip
-      dockerfile: Dockerfile
-    container_name: ridesharetrip
-    ports:
-      - 3000:3000
+      - 9032:9032
+    image: jiameelorh/eti-testcontainer
 
 networks:
   default: null

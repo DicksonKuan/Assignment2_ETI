@@ -79,12 +79,12 @@ func validKey(r *http.Request) bool {
 func checkMicroservices() {
 	//To check if microservice is online
 	url := [6]string{
-		"http://localhost:5000/api/v1/Tutor/",
-		"http://localhost:5000/api/v1/Modules/",
-		"http://localhost:5000/api/v1/Class/",
-		"http://localhost:5000/api/v1/Student/",
-		"http://localhost:5000/api/v1/RatingAndComments/",
-		"http://localhost:5000/api/v1/Timetable/"}
+		"http://172.20.30.96:5000/api/v1/Tutor/",
+		"http://172.20.30.96:5000/api/v1/Modules/",
+		"http://172.20.30.96:5000/api/v1/Class/",
+		"http://172.20.30.96:5000/api/v1/Student/",
+		"http://172.20.30.96:5000/api/v1/RatingAndComments/",
+		"http://172.20.30.96:5000/api/v1/Timetable/"}
 	APItype := [6]string{"Tutor", "Modules", "Class", "Student", "RatingAndComments", "Timetable"}
 	for i, s := range url {
 		response, err := http.Get(s)
@@ -97,7 +97,7 @@ func checkMicroservices() {
 }
 
 func getTutor(tutorIDParam int) Tutor {
-	url := fmt.Sprintf("http://localhost:4000/api/v1/getTutor/%d", tutorIDParam)
+	url := fmt.Sprintf("http://172.20.30.96:9032/api/v1/getTutor/%d", tutorIDParam)
 	response, err := http.Get(url)
 	var tutor Tutor
 	if err != nil {
@@ -115,7 +115,7 @@ func getTutor(tutorIDParam int) Tutor {
 
 func checkTutorExsist(tutorID int) bool {
 	//To check if tutor exsists and information is accurate
-	url := fmt.Sprintf("http://localhost:4000/api/v1/getTutor/%d", tutorID)
+	url := fmt.Sprintf("http://172.20.30.96:9032/api/v1/getTutor/%d", tutorID)
 	response, err := http.Get(url)
 	if err != nil {
 		fmt.Print(err.Error())
@@ -137,7 +137,7 @@ func checkTutorExsist(tutorID int) bool {
 
 func putUser(tutor Tutor) bool { //Update tutor's profile
 	jsonValue, _ := json.Marshal(tutor)
-	URL := "http://localhost:4000/api/v1/putTutor"
+	URL := "http://172.20.30.96:9032/api/v1/putTutor"
 
 	request, err := http.NewRequest(http.MethodPut,
 		URL,
@@ -165,7 +165,7 @@ func putUser(tutor Tutor) bool { //Update tutor's profile
 }
 func getMod(tutorID int) []Module { //get mod from mod microservice
 	//URL := fmt.Sprintf("http://localhost:5000/api/v1/CheckUser/%s", strconv.Itoa(tutorID))
-	URL := "http://localhost:4000/api/v1/getMod"
+	URL := "http://172.20.30.96:9032/api/v1/getMod"
 	response, err := http.Get(URL)
 	if err != nil {
 		fmt.Print(err.Error())
@@ -228,7 +228,7 @@ func getEnrolledStudent(tutorID int) []Student {
 
 func getListTutorAndRating() []RatingAndComments {
 	//Need to improve by adding new structure
-	response, err := http.Get("http://localhost:4000/api/v1/getRatingData")
+	response, err := http.Get("http://172.20.30.96:9032/api/v1/getRatingData")
 	if err != nil {
 		fmt.Print(err.Error())
 	}
@@ -249,7 +249,7 @@ func getListTutorAndRating() []RatingAndComments {
 
 func getOtherTutor(tutorEmail string) Tutor {
 	//url := "http://localhost:5000/api/v1/tutor/" + tutorEmail
-	url := "http://localhost:4000/api/v1/getTutor/1"
+	url := "http://172.20.30.96:9032/api/v1/getTutor/1"
 	response, err := http.Get(url)
 	var tutor Tutor
 
@@ -267,7 +267,7 @@ func getOtherTutor(tutorEmail string) Tutor {
 
 func viewTutorProfile(tutorEmail string) Tutor {
 	//url := "http://localhost:5000/api/v1/tutor/" + tutorEmail
-	url := "http://localhost:4000/api/v1/getTutor/1"
+	url := "http://172.20.30.96:9032/api/v1/getTutor/1"
 	response, err := http.Get(url)
 	var tutor Tutor
 
@@ -386,6 +386,7 @@ func mod(w http.ResponseWriter, r *http.Request) {
 		case "getTimetable":
 			timetable := getTimetable(tutorID)
 			println(timetable)
+			w.WriteHeader(http.StatusAccepted)
 			// if len(timetable) == 0 {
 			// 	w.WriteHeader(
 			// 		http.StatusUnprocessableEntity)
@@ -489,7 +490,7 @@ func main() {
 
 	//Establish port
 	//checkMicroservices()
-	fmt.Println("Listening at port 5000")
-	log.Fatal(http.ListenAndServe(":5000", handlers.CORS(headers, methods, origins)(router)))
+	fmt.Println("Listening at port 9031")
+	log.Fatal(http.ListenAndServe(":9031", handlers.CORS(headers, methods, origins)(router)))
 
 }
