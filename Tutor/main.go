@@ -37,28 +37,13 @@ type Class struct {
 	Capacity int    `json: "Capacity"`
 }
 
-type RatingAndComments struct {
-	TutorID  int    `json: "TutorID"`
-	Rating   int    `json: "Rating"`
-	Comments string `json: "Comments"`
-}
-
 type Module struct {
-	Code               int                 `json: "Code"`
-	Name               string              `json: "Name"`
-	LearningObjective  string              `json: "LearningObjective"`
-	Classes            []Class             `json: "Classes"`
-	AssignedTutor      int                 `json: "AssignedTutor"`
-	EnrolledStudent    []Student           `json: "EnrolledStudent"`
-	RatingsAndComments []RatingAndComments `json: "RatingsAndComments"`
-}
-
-type Timetable struct {
-	TutorID   int    `json: "TutorID"`
-	FirstName string `json: "FirstName"`
-	LastName  string `json: "LastName"`
-	Email     string `json: "Email"`
-	password  string `json: "Password"`
+	Code              int       `json: "Code"`
+	Name              string    `json: "Name"`
+	LearningObjective string    `json: "LearningObjective"`
+	Classes           []Class   `json: "Classes"`
+	AssignedTutor     int       `json: "AssignedTutor"`
+	EnrolledStudent   []Student `json: "EnrolledStudent"`
 }
 
 //Key
@@ -96,8 +81,9 @@ func checkMicroservices() {
 	}
 }
 
-func getTutor(tutorIDParam int) Tutor {
-	url := fmt.Sprintf("http://localhost:9032/api/v1/getTutor/%d", tutorIDParam)
+func getTutor(tutorID int) Tutor {
+	//url := fmt.Sprintf("http://localhost:9181/api/v1/tutor/GetaTutorByEmail/%d", tutorID)
+	url := fmt.Sprintf("http://localhost:9032/api/v1/getTutor/%d", tutorID)
 	response, err := http.Get(url)
 	var tutor Tutor
 	if err != nil {
@@ -224,27 +210,6 @@ func getEnrolledStudent(tutorID int) []Student {
 		}
 	}
 	return studentList
-}
-
-func getListTutorAndRating() []RatingAndComments {
-	//Need to improve by adding new structure
-	response, err := http.Get("http://localhost:9032/api/v1/getRatingData")
-	if err != nil {
-		fmt.Print(err.Error())
-	}
-	if response.StatusCode == http.StatusAccepted {
-		responseData, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			println(err)
-		} else {
-			var data []RatingAndComments
-			err := json.Unmarshal(responseData, &data)
-			if err == nil {
-				return data
-			}
-		}
-	}
-	return nil
 }
 
 func getOtherTutor(tutorEmail string) Tutor {
@@ -423,17 +388,6 @@ func details(w http.ResponseWriter, r *http.Request) {
 		return
 	} else {
 		switch method {
-		case "getListTutorAndRating":
-			data := getListTutorAndRating()
-			if len(data) == 0 {
-				w.WriteHeader(
-					http.StatusUnprocessableEntity)
-				w.Write([]byte(
-					"Cannot find list"))
-			} else {
-				json.NewEncoder(w).Encode(data)
-				w.WriteHeader(http.StatusAccepted)
-			}
 		case "getOtherTutor":
 			tutor := getOtherTutor(email)
 			if tutor == (Tutor{}) {
