@@ -48,7 +48,7 @@
           type: "GET",
           url: url,
           dataType: "json",
-          // data: JSON.stringify(data),
+          data: JSON.stringify(data),
           contentType: "application/json",
           success: function(result, status, xhr){
             if(method == "getTutor"){
@@ -57,12 +57,11 @@
               var table = $('<table class="table text-left">');
               for(var i in result){
                 table.append('<thead class="thead-light"><tr><th scope="col">Mod Code: '+result[i].Code+'</th><th scope="col" colspan="2">Module: '+result[i].Name+'</th></tr></thead>');
-                // table.append("<tr>");
-                // table.append("<th scope='row'>"+result[i]["Code"]+"</th>");
-                // table.append("<td>"+result[i]["Name"]+"</td>");
-                // table.append("<td>"+result[i]["AssignedTutor"]+"</td>");
-                // table.append("</tr>");
-
+                table.append("<tr>");
+                table.append("<th scope='row'>"+result[i]["Code"]+"</th>");
+                table.append("<td>"+result[i]["Name"]+"</td>");
+                table.append("<td>"+result[i]["AssignedTutor"]+"</td>");
+                table.append("</tr>");
                 for(var k in result[i]["Classes"]){
                   table.append("<tr>");
                   table.append("<th scope='row'>Class: "+result[i]["Classes"][k]["Code"]+"</th>");
@@ -70,7 +69,6 @@
                   table.append("<td>Capacity: "+result[i]["Classes"][k]["Capacity"]+"</td>");
                   table.append("</tr>");
                 }
-                counter ++;
               }
               $("#dataTable").html(table);
             }else if(method == "getClasses"){
