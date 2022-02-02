@@ -51,7 +51,38 @@
           data: JSON.stringify(data),
           contentType: "application/json",
           success: function(result, status, xhr){
-            
+            if(method == "getTutor"){
+              $("#tutorName").html(result["FirstName"]+" "+result["LastName"]);
+            }else if(method == "getMods"){
+              var table = $('<table class="table text-left">');
+              for(var i in result){
+                table.append('<thead class="thead-light"><tr><th scope="col">Mod Code: '+result[i].Code+'</th><th scope="col" colspan="2">Module: '+result[i].Name+'</th></tr></thead>');
+                table.append("<tr>");
+                table.append("<th scope='row'>"+result[i]["Code"]+"</th>");
+                table.append("<td>"+result[i]["Name"]+"</td>");
+                table.append("<td>"+result[i]["AssignedTutor"]+"</td>");
+                table.append("</tr>");
+                for(var k in result[i]["Classes"]){
+                  table.append("<tr>");
+                  table.append("<th scope='row'>Class: "+result[i]["Classes"][k]["Code"]+"</th>");
+                  table.append("<td>Time: "+result[i]["Classes"][k]["Schedule"]+"</td>");
+                  table.append("<td>Capacity: "+result[i]["Classes"][k]["Capacity"]+"</td>");
+                  table.append("</tr>");
+                }
+              }
+              $("#dataTable").html(table);
+            }else if(method == "getClasses"){
+              var table = $('<table class="table text-left"><thead class="thead-light"><tr><th scope="col">Code</th><th scope="col">Schedule</th>  <th scope="col">Capacity</th></tr></thead>');
+              for(var i in result){
+                table.append("<tr>");
+                table.append("<th scope='row'>"+result[i]["Code"]+"</th>");
+                table.append("<td>"+result[i]["Schedule"]+"</td>");
+                table.append("<td>"+result[i]["Capacity"]+"</td>");
+                table.append("</tr>");
+              }
+              table.append('</table>');
+              $("#dataTable2").html(table);
+            }
           },
           error: function(xhr, status, error){
             alert("Error Message: "+ xhr.responseText);
