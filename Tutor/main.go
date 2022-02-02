@@ -16,11 +16,11 @@ import (
 
 //Classes
 type Tutor struct {
-	TutorID   int    `json: "TutorID"`
-	FirstName string `json: "FirstName"`
-	LastName  string `json: "LastName"`
-	Email     string `json: "Email"`
-	Password  string `json: "Password"`
+	TutorID     int    `json: "TutorID"`
+	FirstName   string `json: "firstname"`
+	LastName    string `json: "lastname"`
+	Email       string `json: "email"`
+	Description string `json: "descriptions"`
 }
 
 type Student struct {
