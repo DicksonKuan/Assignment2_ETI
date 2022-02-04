@@ -5,29 +5,27 @@ on:
     branches: [main]
 
 jobs:
-  docker:
+  build:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v2
-      -
-        name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      -
-        name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.jiameelorh }}
-          password: ${{ secrets.dragon12? }}
-      -
-        name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: user/app:latest
-
+    - uses: actions/checkout@v2
+    - name: docker login
+      env:
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}   
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}  
+      run: |
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+    - name: docker build TutorContainer
+      run: |
+        docker build ./Tutor -t jiameelorh/eti-tutorcontainer
+    - name: docker build Testing
+      run: |
+        docker build ./Testing -t jiameelorh/eti-testcontainer
+    - name: docker build Front-end
+      run: |
+        docker build ./Front-end -t jiameelorh/eti-tutorfrontend
+    - name: docker push
+      run: |
+        docker push jiameelorh/eti-tutorcontainer
+        docker push jiameelorh/eti-testcontainer
+        docker push jiameelorh/eti-tutorfrontend
