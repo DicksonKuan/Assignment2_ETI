@@ -65,6 +65,28 @@ func getTutor(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func getTutorList(w http.ResponseWriter, r *http.Request) {
+	var tutorList []Tutor
+	var tutor Tutor
+	tutor.TutorID = 1
+	tutor.FirstName = "John"
+	tutor.LastName = "Lee"
+	tutor.Email = "JohnLee@np.com"
+	tutor.Description = "Hello world"
+
+	var tutor1 Tutor
+	tutor1.TutorID = 1
+	tutor1.FirstName = "John"
+	tutor1.LastName = "Lee"
+	tutor1.Email = "JohnLee@np.com"
+	tutor1.Description = "Hello world"
+
+	tutorList = append(tutorList, tutor)
+	tutorList = append(tutorList, tutor1)
+	w.WriteHeader(http.StatusAccepted)
+	json.NewEncoder(w).Encode(tutorList)
+	return
+}
 func putTutor(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Content-type") == "application/json" {
 		reqBody, err := ioutil.ReadAll(r.Body)
@@ -131,6 +153,7 @@ func main() {
 	router.HandleFunc("/api/v1/putTutor", putTutor).Methods("PUT")
 	router.HandleFunc("/api/v1/getMod", getMod).Methods("GET")
 	router.HandleFunc("/api/v1/getRatingData", getRatingData).Methods("GET")
+	router.HandleFunc("/api/v1/getTutorList", getTutorList).Methods("GET")
 
 	fmt.Println("Listening at port 9032")
 	log.Fatal(http.ListenAndServe(":9032", handlers.CORS(headers, methods, origins)(router)))

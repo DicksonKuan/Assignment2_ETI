@@ -59,28 +59,6 @@ func validKey(r *http.Request) bool {
 		return false
 	}
 }
-
-//Microservice functions
-func checkMicroservices() {
-	//To check if microservice is online
-	url := [6]string{
-		"http://localhost:9032/api/v1/Tutor/",
-		"http://localhost:9032/api/v1/Modules/",
-		"http://localhost:9032/api/v1/Class/",
-		"http://localhost:9032/api/v1/Student/",
-		"http://localhost:9032/api/v1/RatingAndComments/",
-		"http://localhost:9032/api/v1/Timetable/"}
-	APItype := [6]string{"Tutor", "Modules", "Class", "Student", "RatingAndComments", "Timetable"}
-	for i, s := range url {
-		response, err := http.Get(s)
-		if err == nil {
-			println(fmt.Sprintf("%s is working: %s", APItype[i], response.Status))
-		} else {
-			println(fmt.Sprintf("%s is not working", APItype[i]))
-		}
-	}
-}
-
 func getTutor(tutorID int) Tutor {
 	//url := fmt.Sprintf("http://localhost:9181/api/v1/tutor/GetaTutorByEmail/%d", tutorID)
 	url := fmt.Sprintf("http://localhost:9032/api/v1/getTutor/%d", tutorID)
@@ -186,11 +164,6 @@ func getClassAssigned(tutorID int) []Class {
 	return classesInfo
 }
 
-func getTimetable(tutorID int) bool {
-	//Work in progress
-	return false
-}
-
 func getEnrolledStudent(tutorID int) []Student {
 	mods := getMod(tutorID)
 	var studentList []Student
@@ -212,7 +185,21 @@ func getEnrolledStudent(tutorID int) []Student {
 	}
 	return studentList
 }
-
+func getAllTutor() []Tutor {
+	var tutorList []Tutor
+	url := "http://localhost:9032/api/v1/getTutorList"
+	response, err := http.Get(url)
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+	if response.StatusCode == http.StatusAccepted {
+		responseData, err := ioutil.ReadAll(response.Body)
+		if err != nil || json.Unmarshal([]byte(responseData), &tutorList) != nil {
+			println(err)
+		}
+	}
+	return tutorList
+}
 func getOtherTutor(tutorEmail string) Tutor {
 	//url := "http://localhost:5000/api/v1/tutor/" + tutorEmail
 	url := "http://localhost:9032/api/v1/getTutor/1"
@@ -349,19 +336,6 @@ func mod(w http.ResponseWriter, r *http.Request) {
 				json.NewEncoder(w).Encode(classes)
 				w.WriteHeader(http.StatusAccepted)
 			}
-		case "getTimetable":
-			timetable := getTimetable(tutorID)
-			println(timetable)
-			w.WriteHeader(http.StatusAccepted)
-			// if len(timetable) == 0 {
-			// 	w.WriteHeader(
-			// 		http.StatusUnprocessableEntity)
-			// 	w.Write([]byte(
-			// 		"timetable list Empty"))
-			// } else {
-			// 	json.NewEncoder(w).Encode(timetable)
-			// 	w.WriteHeader(http.StatusAccepted)
-			// }
 		case "enrolledStudent":
 			students := getEnrolledStudent(tutorID)
 			if len(students) == 0 {
@@ -411,6 +385,11 @@ func details(w http.ResponseWriter, r *http.Request) {
 				json.NewEncoder(w).Encode(tutor)
 				w.WriteHeader(http.StatusAccepted)
 			}
+		case "getAllTutor":
+			var tutorList []Tutor
+			tutorList = getAllTutor()
+			json.NewEncoder(w).Encode(tutorList)
+			w.WriteHeader(http.StatusAccepted)
 		}
 	}
 }
