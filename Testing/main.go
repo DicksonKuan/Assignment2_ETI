@@ -180,6 +180,12 @@ func getClasses(w http.ResponseWriter, r *http.Request) {
 func getStudent(w http.ResponseWriter, r *http.Request) {
 	var studentList []Student
 	studentList = append(studentList, Student{"1", "John", "10 March 2000", "24 west c", "91234567"})
+	studentList = append(studentList, Student{"2", "Raf", "10 March 2000", "24 west c", "91234567"})
+	studentList = append(studentList, Student{"3", "Ethan", "10 March 2000", "24 west c", "91234567"})
+	studentList = append(studentList, Student{"4", "Leon", "10 March 2000", "24 west c", "91234567"})
+	w.WriteHeader(http.StatusAccepted)
+	json.NewEncoder(w).Encode(studentList)
+	return
 }
 
 func main() {

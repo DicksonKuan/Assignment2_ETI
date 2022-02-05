@@ -73,6 +73,12 @@
                   table.append("<td>Capacity: "+result[i]["Classes"][k]["Capacity"]+"</td>");
                   table.append("</tr>");
                 }
+                for(var x in result[i]["EnrolledStudent"]){
+                  table.append("<tr>");
+                  table.append("<th scope='row'>StudentID: "+result[i]["EnrolledStudent"][x]["StudentID"]+"</th>");
+                  table.append("<td colspan='3'>Name: "+result[i]["EnrolledStudent"][x]["Name"]+"</td>");
+                  table.append("</tr>");
+                }
               }
               $("#dataTable").html(table);
             }          },

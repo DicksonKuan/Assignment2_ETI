@@ -2,6 +2,7 @@ Testing API
 curl jiameelorh/eti-tutorcontainer:9031/api/v1/tutor
 curl http://localhost:9031/api/v1/tutor
 
+curl http://localhost:9032/api/v1/getMod
 
 
 Profile 
