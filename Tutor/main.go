@@ -123,6 +123,7 @@ func checkTutorExsist(tutorID int) bool {
 
 func putUser(tutor Tutor) bool { //Update tutor's profile
 	jsonValue, _ := json.Marshal(tutor)
+	//URL := "http://localhost:9181/api/v1/tutor/UpdateTutorAccountByEmail/" + tutor.Email
 	URL := "http://localhost:9032/api/v1/putTutor"
 
 	request, err := http.NewRequest(http.MethodPut,
