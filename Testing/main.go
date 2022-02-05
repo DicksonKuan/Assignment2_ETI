@@ -39,14 +39,23 @@ type RatingAndComments struct {
 	Rating   int    `json: "Rating"`
 	Comments string `json: "Comments"`
 }
-
+type EnrolledStudent struct {
+	StudentID string `json: "student_id"`
+	ClassId   int    `json: "class_id"`
+	Semester  string `json: "semester"`
+}
+type AssignedTutor struct {
+	TutorId    string `json: "tutorid"`
+	ModuleCode int    `json: "modulecode"`
+}
 type Module struct {
-	Code              int       `json: "Code"`
-	Name              string    `json: "Name"`
-	LearningObjective string    `json: "LearningObjective"`
-	Classes           []Class   `json: "Classes"`
-	AssignedTutor     int       `json: "AssignedTutor"`
-	EnrolledStudent   []Student `json: "EnrolledStudent"`
+	ModuleCode         string            `json:"modulecode"`
+	ModuleName         string            `json:"modulename"`
+	Synopsis           string            `json:"synopsis"`
+	LearningObjectives string            `json:"learningobjective"`
+	Classes            []int             `json:"classes"`
+	AssignedTutors     []AssignedTutor   `json:"assigned_tutors"`
+	EnrolledStudents   []EnrolledStudent `json:"enrolled_students"`
 }
 
 func test(w http.ResponseWriter, r *http.Request) {
@@ -110,21 +119,30 @@ func putTutor(w http.ResponseWriter, r *http.Request) {
 }
 
 func getMod(w http.ResponseWriter, r *http.Request) {
+	var tutor AssignedTutor
+	tutor.TutorId = "S1234567G"
+	tutor.ModuleCode = 1
+
+	var student EnrolledStudent
+	student.ClassId = 1
+	student.Semester = "Sem 4"
+	student.StudentID = "S2345678A"
+
 	var mods Module
-	mods.AssignedTutor = 1
-	mods.Code = 1
-	mods.LearningObjective = "Math"
-	mods.Name = "Math"
-	mods.EnrolledStudent = []Student{Student{1, "john", "28 July", "25 west coast", "1234567"}, Student{2, "Susan", "28 July", "25 west coast", "1234567"}}
-	mods.Classes = []Class{Class{1, "8.00Am - 9.00Am", 1}, Class{2, "8.30Am - 9.30Am", 1}}
+	mods.AssignedTutors = append(mods.AssignedTutors, tutor)
+	mods.ModuleCode = "PRG1"
+	mods.Synopsis = "Program python"
+	mods.ModuleName = "Programming 1"
+	mods.EnrolledStudents = []EnrolledStudent{student, EnrolledStudent{"S1234567C", 2, "Sem 4"}}
+	mods.Classes = append(mods.Classes, 1)
 
 	var mods2 Module
-	mods2.AssignedTutor = 2
-	mods2.Code = 2
-	mods2.LearningObjective = "English"
-	mods2.Name = "English"
-	mods2.EnrolledStudent = []Student{Student{1, "john", "28 July", "25 west coast", "1234567"}, Student{2, "Susan", "28 July", "25 west coast", "1234567"}}
-	mods2.Classes = []Class{Class{1, "8.15Am - 9.15Am", 1}, Class{2, "8.45Am - 9.45Am", 1}}
+	mods.AssignedTutors = append(mods.AssignedTutors, tutor)
+	mods.ModuleCode = "PRG2"
+	mods.Synopsis = "Program C#"
+	mods.ModuleName = "Programming 2"
+	mods.EnrolledStudents = []EnrolledStudent{student, EnrolledStudent{"S1234567C", 2, "Sem 4"}}
+	mods.Classes = append(mods.Classes, 1)
 
 	modList := [2]Module{mods2, mods}
 	w.WriteHeader(http.StatusAccepted)

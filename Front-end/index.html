@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Ngee Ann Poly</title>
+    <title>EduFi</title>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -21,7 +21,7 @@
     <!-- navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">Ngee ann</a>
+        <a class="navbar-brand" href="#"></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -62,13 +62,14 @@
               for(var i in result){
                 table.append('<thead class="thead-light"><tr><th scope="col">Mod Code: '+result[i].Code+'</th><th scope="col" colspan="2">Module: '+result[i].Name+'</th></tr></thead>');
                 table.append("<tr>");
-                table.append("<th scope='row'>"+result[i]["Code"]+"</th>");
-                table.append("<td>"+result[i]["Name"]+"</td>");
+                table.append("<th scope='row'></th>");
+                table.append("<td></td>");
                 table.append("</tr>");
                 for(var k in result[i]["Classes"]){
                   table.append("<tr>");
-                  table.append("<th scope='row'>Class: "+result[i]["Classes"][k]["Code"]+"</th>");
-                  table.append("<td>Time: "+result[i]["Classes"][k]["Schedule"]+"</td>");
+                  table.append("<th scope='row'>Class: "+result[i]["Classes"][k]["ClassID"]+"</th>");
+                  table.append("<td>Date: "+result[i]["Classes"][k]["ClassDate"]+"</td>");
+                  table.append("<td>Time: "+result[i]["Classes"][k]["ClassStart"]+"-"+result[i]["Classes"][k]["ClassEnd"]+"</td>");
                   table.append("<td>Capacity: "+result[i]["Classes"][k]["Capacity"]+"</td>");
                   table.append("</tr>");
                 }
