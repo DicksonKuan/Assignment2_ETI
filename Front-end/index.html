@@ -122,6 +122,30 @@
         })
       }
       APITest();
+
+      var getUrlParameter = function getUrlParameter(sParam) {
+          var sPageURL = window.location.search.substring(1),
+              sURLVariables = sPageURL.split('&'),
+              sParameterName,
+              i;
+
+          for (i = 0; i < sURLVariables.length; i++) {
+              sParameterName = sURLVariables[i].split('=');
+
+              if (sParameterName[0] === sParam) {
+                  return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+              }
+          }
+          return false;
+      };
+      var TutorID = getUrlParameter("TutorID");
+      if(TutorID != false){
+        APIFunction("getTutor", "http://localhost:9031/api/v1/tutor/profile/1/'Password'?key=2c78afaf-97da-4816-bbee-9ad239abb296",user);
+        APIFunction("getMods", 'http://localhost:9031/api/v1/tutor/mod/'+"getMod"+'/1?key=2c78afaf-97da-4816-bbee-9ad239abb296',user);
+        APIFunction("getClasses", 'http://localhost:9031/api/v1/tutor/mod/'+"getClassAssigned"+'/1?key=2c78afaf-97da-4816-bbee-9ad239abb296',user);
+      }else{
+        alert("Cannot find tutor");
+      }
       var user ={
         TutorID: 1,
         Password: 'password',
@@ -129,9 +153,6 @@
         LastName: 'Lee',
         Email: "Lee@np.com"
       }
-      APIFunction("getTutor", "http://localhost:9031/api/v1/tutor/profile/1/'Password'?key=2c78afaf-97da-4816-bbee-9ad239abb296",user);
-      APIFunction("getMods", 'http://localhost:9031/api/v1/tutor/mod/'+"getMod"+'/1?key=2c78afaf-97da-4816-bbee-9ad239abb296',user);
-      APIFunction("getClasses", 'http://localhost:9031/api/v1/tutor/mod/'+"getClassAssigned"+'/1?key=2c78afaf-97da-4816-bbee-9ad239abb296',user);
 
     </script>
     <div class="container-fluid w-100 mt-5">
