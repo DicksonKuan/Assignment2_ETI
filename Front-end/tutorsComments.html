@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ngee Ann Poly</title>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+	   <!-- Link to Font Awesomwe icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- <link rel="stylesheet" href="css/site.css"> -->
+  </head>
+  <body>
+    <!-- navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Ngee ann</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarScroll">
+          <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Module</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="findTutor.html">Find tutors</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="#">All tutor's rating and comments</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="profile.html">Profile</a>
+            </li>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Body -->
+    <script type="text/javascript">
+      function APIFunction(){
+        $.ajax({
+          type: "GET",
+          url: 'http://localhost:9031/api/v1/tutor/details/getAllTutor/"Ethen@np.com"',
+          contentType: "application/json",
+          dataType: "json",
+          success: function(result, status, xhr){
+            var table = $("<table class='table text-left'><thead class='thead-light text-center'><tr><th scope='col' colspan='3'>Tutors rating and comments</th></tr></thead>");
+            for(var i in result){
+                button = "<a href='http://localhost:9040/Main/comments.html?id="+result[i]["TutorID"]+"&type=Tutor' class='btn btn-primary'>Rating and comments</a>"
+                table.append("<tr><td>Name:</td><td class='text-left'>" + result[i]["FirstName"] + result[i]["LastName"] + "</td><td>"+button+"</td></tr>");
+            }
+            $("#dataTable").html(table);
+          },
+          error: function(xhr, status, error){
+            alert("Error Message: "+ xhr.responseText + error);
+          }
+        });
+      }
+    </script>
+    <div class="container w-100 mt-5">
+      <div id="dataTable">
+
+      </div>
+    </div>
+
+    <!-- footer  -->
+    <script type="text/javascript">
+      APIFunction();
+
+    </script>
+  </body>
+</html>

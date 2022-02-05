@@ -2,7 +2,6 @@ Testing API
 curl jiameelorh/eti-tutorcontainer:9031/api/v1/tutor
 curl http://localhost:9031/api/v1/tutor
 
-curl http://localhost:5000/api/v1/tutor
 
 
 Profile 
@@ -30,3 +29,6 @@ curl -H "Content-Type:application/json" -X GET http://localhost:5000/api/v1/tuto
 
 GET viewOtherProfile
 curl -H "Content-Type:application/json" -X GET http://localhost:5000/api/v1/tutor/details/"viewTutorProfile"/"Ethen@np.com"
+
+GET allTutor
+curl http://localhost:9031/api/v1/tutor/details/"getAllTutor"/"Ethen@np.com"
