@@ -389,7 +389,6 @@ func details(w http.ResponseWriter, r *http.Request) {
 			var tutorList []Tutor
 			tutorList = getAllTutor()
 			json.NewEncoder(w).Encode(tutorList)
-			w.WriteHeader(http.StatusAccepted)
 		}
 	}
 }
