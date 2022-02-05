@@ -14,7 +14,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-//Classes
+//Official Classes
 type Tutor struct {
 	TutorID     int    `json: "TutorID"`
 	FirstName   string `json: "firstname"`
@@ -24,7 +24,7 @@ type Tutor struct {
 }
 
 type Student struct {
-	StudentID   int    `json: "StudentID"`
+	StudentID   string `json: "StudentID"`
 	Name        string `json: "Name"`
 	DateOfBirth string `json: "DateOfBirth"`
 	Address     string `json: "Address"`
@@ -32,18 +32,43 @@ type Student struct {
 }
 
 type Class struct {
-	Code     int    `json: "Code"`
-	Schedule string `json: "Schedule"`
-	Capacity int    `json: "Capacity"`
+	ClassID    int    `json: "ClassID"`
+	ModuleID   string `json: "ModuleID"`
+	ClassDate  string `json: "ClassDate"`
+	ClassStart string `json: "ClassStart"`
+	ClassEnd   string `json: "ClassEnd"`
+	Capacity   int    `json: "Capacity"`
+	TutorfName string `json: "tutorName"`
+	TutorID    int    `json: "TutorID"`
 }
 
 type Module struct {
-	Code              int       `json: "Code"`
+	Code              string    `json: "Code"`
 	Name              string    `json: "Name"`
 	LearningObjective string    `json: "LearningObjective"`
 	Classes           []Class   `json: "Classes"`
-	AssignedTutor     int       `json: "AssignedTutor"`
+	AssignedTutor     string    `json: "AssignedTutor"`
 	EnrolledStudent   []Student `json: "EnrolledStudent"`
+}
+
+//API Classes
+type EnrolledStudent struct {
+	StudentID string `json: "student_id"`
+	ClassId   int    `json: "class_id"`
+	Semester  string `json: "semester"`
+}
+type AssignedTutor struct {
+	TutorId    string `json: "tutorid"`
+	ModuleCode int    `json: "modulecode"`
+}
+type getModule struct {
+	ModuleCode         string            `json:"modulecode"`
+	ModuleName         string            `json:"modulename"`
+	Synopsis           string            `json:"synopsis"`
+	LearningObjectives string            `json:"learningobjective"`
+	Classes            []int             `json:"classes"`
+	AssignedTutors     []AssignedTutor   `json:"assigned_tutors"`
+	EnrolledStudents   []EnrolledStudent `json:"enrolled_students"`
 }
 
 //Key
@@ -128,8 +153,9 @@ func putUser(tutor Tutor) bool { //Update tutor's profile
 	}
 	return false
 }
-func getMod(tutorID int) []Module { //get mod from mod microservice
-	//URL := fmt.Sprintf("http://localhost:5000/api/v1/CheckUser/%s", strconv.Itoa(tutorID))
+
+func getMod(tutorID string) []Module { //get mod from mod microservice
+	//URL := http://10.31.11.12:9061/module/v1/modules/+tutorID
 	URL := "http://localhost:9032/api/v1/getMod"
 	response, err := http.Get(URL)
 	if err != nil {
@@ -139,20 +165,78 @@ func getMod(tutorID int) []Module { //get mod from mod microservice
 		if err != nil {
 			println(err)
 		} else {
-			// mods := strings.Split(string(responseData), ",")
-			// replacer := strings.NewReplacer(",", "")
-			var newMods []Module
+			//Get module
+			var newMods []getModule
 			err := json.Unmarshal(responseData, &newMods)
 			if err != nil {
 				panic(err.Error())
 			}
-			return newMods
+
+			var modList []Module
+			for _, data := range newMods {
+				var mods Module
+				var allClasses []Class
+				var allStudent []Student
+				mods.Code = data.ModuleCode
+				mods.Name = data.ModuleName
+				mods.LearningObjective = data.Synopsis
+				mods.AssignedTutor = tutorID
+				//GET all classes
+				response, err := http.Get("http://localhost:9101/api/v1/class?key=2c78afaf-97da-4816-bbee-9ad239abb296")
+				if err != nil {
+					fmt.Print(err.Error())
+				} else if response.StatusCode == http.StatusAccepted {
+					responseData, err := ioutil.ReadAll(response.Body)
+					if err != nil {
+						println(err)
+					}
+					err = json.Unmarshal(responseData, &allClasses)
+					if err != nil {
+						panic(err.Error())
+					}
+				}
+
+				//GET class details
+				for _, classID := range data.Classes {
+					for _, Classes := range allClasses {
+						if Classes.ClassID == classID {
+							mods.Classes = append(mods.Classes, Classes)
+							break
+						}
+					}
+				}
+				//GET all Student
+				response, err = http.Get("http://10.31.11.12:9211/api/v1/students/")
+				if err != nil {
+					fmt.Print(err.Error())
+				} else if response.StatusCode == http.StatusAccepted {
+					responseData, err := ioutil.ReadAll(response.Body)
+					if err != nil {
+						println(err)
+					}
+					err = json.Unmarshal(responseData, &allStudent)
+					if err != nil {
+						panic(err.Error())
+					}
+				}
+
+				//GET Student Details
+				for _, Student := range data.EnrolledStudents {
+					for _, StudentDetails := range allStudent {
+						if Student.StudentID == StudentDetails.StudentID {
+							mods.EnrolledStudent = append(mods.EnrolledStudent, StudentDetails)
+						}
+					}
+				}
+			}
+
+			return modList
 		}
 	}
 	return nil
 }
 
-func getClassAssigned(tutorID int) []Class {
+func getClassAssigned(tutorID string) []Class {
 	//Get Assigned mods
 	mods := getMod(tutorID)
 
@@ -164,7 +248,7 @@ func getClassAssigned(tutorID int) []Class {
 	return classesInfo
 }
 
-func getEnrolledStudent(tutorID int) []Student {
+func getEnrolledStudent(tutorID string) []Student {
 	mods := getMod(tutorID)
 	var studentList []Student
 	//Get modules from mods list
@@ -303,11 +387,10 @@ func mod(w http.ResponseWriter, r *http.Request) {
 	//Get and convert parameter
 	params := mux.Vars(r)
 	method := params["method"]
-	tutorIDParam := params["TutorID"]
-	tutorID, err := strconv.Atoi(tutorIDParam)
+	tutorID := params["TutorID"]
 
 	//To check if param is empty
-	if method == "" || err != nil {
+	if method == "" {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		w.Write([]byte("Please supply tutor's information and valid method"))
 		return
