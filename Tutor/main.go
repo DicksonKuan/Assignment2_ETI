@@ -171,7 +171,6 @@ func getMod(tutorID string) []Module { //get mod from mod microservice
 			if err != nil {
 				panic(err.Error())
 			}
-
 			var modList []Module
 			for _, data := range newMods {
 				var mods Module
@@ -182,7 +181,9 @@ func getMod(tutorID string) []Module { //get mod from mod microservice
 				mods.LearningObjective = data.Synopsis
 				mods.AssignedTutor = tutorID
 				//GET all classes
-				response, err := http.Get("http://localhost:9101/api/v1/class?key=2c78afaf-97da-4816-bbee-9ad239abb296")
+				//url := "http://localhost:9101/api/v1/class?key=2c78afaf-97da-4816-bbee-9ad239abb296"
+				url := "http://localhost:9032/api/v1/getClasses"
+				response, err := http.Get(url)
 				if err != nil {
 					fmt.Print(err.Error())
 				} else if response.StatusCode == http.StatusAccepted {
@@ -206,7 +207,9 @@ func getMod(tutorID string) []Module { //get mod from mod microservice
 					}
 				}
 				//GET all Student
-				response, err = http.Get("http://10.31.11.12:9211/api/v1/students/")
+				//url = "http://10.31.11.12:9211/api/v1/students/"
+				url = "http://localhost:9032/api/v1/getStudent"
+				response, err = http.Get(url)
 				if err != nil {
 					fmt.Print(err.Error())
 				} else if response.StatusCode == http.StatusAccepted {
@@ -228,8 +231,8 @@ func getMod(tutorID string) []Module { //get mod from mod microservice
 						}
 					}
 				}
+				modList = append(modList, mods)
 			}
-
 			return modList
 		}
 	}

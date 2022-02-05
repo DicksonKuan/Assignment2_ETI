@@ -21,7 +21,7 @@ type Tutor struct {
 }
 
 type Student struct {
-	StudentID   int    `json: "StudentID"`
+	StudentID   string `json: "StudentID"`
 	Name        string `json: "Name"`
 	DateOfBirth string `json: "DateOfBirth"`
 	Address     string `json: "Address"`
@@ -32,6 +32,17 @@ type Class struct {
 	Code     int    `json: "Code"`
 	Schedule string `json: "Schedule"`
 	Capacity int    `json: "Capacity"`
+}
+
+type Class2 struct {
+	ClassID    int    `json: "ClassID"`
+	ModuleID   string `json: "ModuleID"`
+	ClassDate  string `json: "ClassDate"`
+	ClassStart string `json: "ClassStart"`
+	ClassEnd   string `json: "ClassEnd"`
+	Capacity   int    `json: "Capacity"`
+	TutorfName string `json: "tutorName"`
+	TutorID    int    `json: "TutorID"`
 }
 
 type RatingAndComments struct {
@@ -119,34 +130,35 @@ func putTutor(w http.ResponseWriter, r *http.Request) {
 }
 
 func getMod(w http.ResponseWriter, r *http.Request) {
+	var modlist []Module
 	var tutor AssignedTutor
-	tutor.TutorId = "S1234567G"
+	tutor.TutorId = "1"
 	tutor.ModuleCode = 1
 
 	var student EnrolledStudent
 	student.ClassId = 1
 	student.Semester = "Sem 4"
-	student.StudentID = "S2345678A"
+	student.StudentID = "1"
 
 	var mods Module
-	mods.AssignedTutors = append(mods.AssignedTutors, tutor)
+	mods.AssignedTutors = []AssignedTutor{AssignedTutor{"1", 1}, AssignedTutor{"2", 1}}
 	mods.ModuleCode = "PRG1"
 	mods.Synopsis = "Program python"
 	mods.ModuleName = "Programming 1"
-	mods.EnrolledStudents = []EnrolledStudent{student, EnrolledStudent{"S1234567C", 2, "Sem 4"}}
+	mods.EnrolledStudents = []EnrolledStudent{student, EnrolledStudent{"2", 2, "Sem 4"}}
 	mods.Classes = append(mods.Classes, 1)
+	modlist = append(modlist, mods)
 
 	var mods2 Module
-	mods.AssignedTutors = append(mods.AssignedTutors, tutor)
-	mods.ModuleCode = "PRG2"
-	mods.Synopsis = "Program C#"
-	mods.ModuleName = "Programming 2"
-	mods.EnrolledStudents = []EnrolledStudent{student, EnrolledStudent{"S1234567C", 2, "Sem 4"}}
-	mods.Classes = append(mods.Classes, 1)
-
-	modList := [2]Module{mods2, mods}
+	mods2.AssignedTutors = []AssignedTutor{AssignedTutor{"4", 1}, AssignedTutor{"3", 1}}
+	mods2.ModuleCode = "PRG2"
+	mods2.Synopsis = "Program C#"
+	mods2.ModuleName = "Programming 2"
+	mods2.EnrolledStudents = []EnrolledStudent{EnrolledStudent{"4", 2, "Sem 4"}, EnrolledStudent{"3", 2, "Sem 4"}}
+	mods2.Classes = append(mods2.Classes, 2)
+	modlist = append(modlist, mods2)
 	w.WriteHeader(http.StatusAccepted)
-	json.NewEncoder(w).Encode(modList)
+	json.NewEncoder(w).Encode(modlist)
 	return
 }
 
@@ -154,6 +166,20 @@ func getRatingData(w http.ResponseWriter, r *http.Request) {
 	ratingData := []RatingAndComments{RatingAndComments{1, 1, "good"}, RatingAndComments{2, 2, "Very good"}}
 	w.WriteHeader(http.StatusAccepted)
 	json.NewEncoder(w).Encode(ratingData)
+}
+
+func getClasses(w http.ResponseWriter, r *http.Request) {
+	var classes []Class2
+	classes = append(classes, Class2{1, "PRG1", "12 Feb 2021", "8pm", "9pm", 50, "John C maxwell", 1})
+	classes = append(classes, Class2{2, "PRG2", "12 Feb 2021", "10pm", "11pm", 50, "John C maxwell", 1})
+	w.WriteHeader(http.StatusAccepted)
+	json.NewEncoder(w).Encode(classes)
+	return
+}
+
+func getStudent(w http.ResponseWriter, r *http.Request) {
+	var studentList []Student
+	studentList = append(studentList, Student{"1", "John", "10 March 2000", "24 west c", "91234567"})
 }
 
 func main() {
@@ -172,6 +198,8 @@ func main() {
 	router.HandleFunc("/api/v1/getMod", getMod).Methods("GET")
 	router.HandleFunc("/api/v1/getRatingData", getRatingData).Methods("GET")
 	router.HandleFunc("/api/v1/getTutorList", getTutorList).Methods("GET")
+	router.HandleFunc("/api/v1/getClasses", getClasses).Methods("GET")
+	router.HandleFunc("/api/v1/getStudent", getStudent).Methods("GET")
 
 	fmt.Println("Listening at port 9032")
 	log.Fatal(http.ListenAndServe(":9032", handlers.CORS(headers, methods, origins)(router)))
