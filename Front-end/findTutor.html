@@ -34,7 +34,7 @@
               <a class="nav-link active" href="#">Find tutors</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="tutorsComments.html">All tutor's rating and comments</a>
+              <a class="nav-link" href="tutorsComments.html">All tutor's rating and comments</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="profile.html">Profile</a>
@@ -72,6 +72,7 @@
               $("#Email").html(result.Email);
               $("#Description").html(result.Description);
               $("#ratingAndComments").attr("href","http://localhost:9040/Main/comments.html?id="+result.TutorID+"&type=Tutor");
+              $("#timeTable").attr("href","http://10.31.11.12:9051/api/v1/timetable/tutor/"+result.TutorID);
               // GET modules via tutor's ID
               APIFunction("nil","getModuleByTutorID",result.TutorID);
             }else{
@@ -132,8 +133,10 @@
 
       <div id="dataTable">
       </div>
-
-      <a href="#" class="btn btn-primary" id="ratingAndComments">View Comments and rating</a>
+      <div class="btn-group">
+        <a href="#" class="btn btn-secondary" id="ratingAndComments">View Comments and rating</a>
+        <a href="#" id="timeTable" class="btn btn-secondary">Timetable</a>
+      </div>
     </div>
 
     <!-- footer  -->

@@ -34,7 +34,7 @@
               <a class="nav-link" href="findTutor.html">Find tutors</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="tutorsComments.html">All tutor's rating and comments</a>
+              <a class="nav-link" href="tutorsComments.html">All tutor's rating and comments</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="profile.html">Profile</a>
@@ -56,6 +56,7 @@
           success: function(result, status, xhr){
             if(method == "getTutor"){
               $("#tutorName").html(result["FirstName"]+" "+result["LastName"]);
+              $("#timeTable").attr("href","http://10.31.11.12:9051/api/v1/timetable/tutor/"+result["TutorID"]);
             }else if(method == "getMods"){
               var table = $('<table class="table text-left">');
               for(var i in result){
@@ -102,10 +103,11 @@
           <div id="dataTable">
 
           </div>
-          <h5 class="card-title">Timetable</h5>
+          <h5 class="card-title">Classes</h5>
           <div id="dataTable2">
 
           </div>
+          <a href="#" class="btn btn-secondary btn-lg btn-block">Timetable</a>
         </div>
       </div>
     </div>
