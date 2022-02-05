@@ -140,20 +140,12 @@
       };
       var TutorID = getUrlParameter("TutorID");
       if(TutorID != false){
-        APIFunction("getTutor", "http://localhost:9031/api/v1/tutor/profile/1/'Password'?key=2c78afaf-97da-4816-bbee-9ad239abb296",user);
-        APIFunction("getMods", 'http://localhost:9031/api/v1/tutor/mod/'+"getMod"+'/1?key=2c78afaf-97da-4816-bbee-9ad239abb296',user);
-        APIFunction("getClasses", 'http://localhost:9031/api/v1/tutor/mod/'+"getClassAssigned"+'/1?key=2c78afaf-97da-4816-bbee-9ad239abb296',user);
+        APIFunction("getTutor", "http://localhost:9031/api/v1/tutor/profile/1/'Password'?key=2c78afaf-97da-4816-bbee-9ad239abb296",TutorID);
+        APIFunction("getMods", 'http://localhost:9031/api/v1/tutor/mod/'+"getMod"+'/1?key=2c78afaf-97da-4816-bbee-9ad239abb296',TutorID);
+        APIFunction("getClasses", 'http://localhost:9031/api/v1/tutor/mod/'+"getClassAssigned"+'/1?key=2c78afaf-97da-4816-bbee-9ad239abb296',TutorID);
       }else{
         alert("Cannot find tutor");
       }
-      var user ={
-        TutorID: 1,
-        Password: 'password',
-        FirstName: "John",
-        LastName: 'Lee',
-        Email: "Lee@np.com"
-      }
-
     </script>
     <div class="container-fluid w-100 mt-5">
       <p id="status">API Status: Failed</p>
