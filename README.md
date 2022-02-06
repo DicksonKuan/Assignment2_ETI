@@ -33,12 +33,11 @@ https://hub.docker.com/repository/docker/jiameelorh/eti-tutorcontainer  -    Tut
 
 ## Front End Webpage Routes
 ```sh
-# 1. Comments and Ratings Dashboard
-# (Comments and Ratings be posted and seen by first selecting target through this page)
+# 1. view tutor profile, Search tutor, view tutor mods, classes, enrolled students, Tutor's rating and comments, timetable
 http://10.31.11.12:9030/index.html
-# 2. Specific student feedback
+# 2. View and update tutor's particular
 http://10.31.11.12:9040/profile.html
-# 3. Personal posted and received ratings
+# 3. View all tutor's rating and comment
 http://10.31.11.12:9040/tutorsComments.html
 
 ```
