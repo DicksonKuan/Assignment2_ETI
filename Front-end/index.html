@@ -143,6 +143,7 @@
         $.ajax({
           url:"http://localhost:9031/api/v1/tutor",
           contentType: "application/json",
+          crossDomain: true,
           success: function(result,status, xhr){
             $("#status").text("API status: Working");
           },
