@@ -49,6 +49,7 @@
           url: url,
           dataType: "json",
           contentType: "application/json",
+          crossDomain: true,
           success: function(result, status, xhr){
             if(method == "getTutor" || method == "getTutorByEmail"){
               $("#tutorName").html(result["Name"]);

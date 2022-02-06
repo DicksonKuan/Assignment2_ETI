@@ -48,6 +48,7 @@
           url: 'http://localhost:9031/api/v1/tutor/getAllTutor',
           contentType: "application/json",
           dataType: "json",
+          crossDomain: true,
           success: function(result, status, xhr){
             var table = $("<table class='table text-left'><thead class='thead-light text-center'><tr><th scope='col' colspan='3'>Tutors rating and comments</th></tr></thead>");
             for(var i in result){

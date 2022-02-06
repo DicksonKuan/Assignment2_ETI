@@ -65,6 +65,7 @@
           dataType: "json",
           data: JSON.stringify(jsonString),
           contentType: "application/json",
+          crossDomain: true,
           success: function(result, status, xhr){
             $("#TutorID").val(result.TutorID);
             $("#Name").val(result.Name);
