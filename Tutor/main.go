@@ -491,7 +491,7 @@ func main() {
 	//3.6.1 View particular.
 	//3.6.2 Update particular.
 	//JSON, get data using tutorID and tutorPassword
-	router.HandleFunc("/api/v1/tutor/profile/{TutorID}/{Password}", profile).Methods("GET", "PUT")
+	router.HandleFunc("/api/v1/tutor/profile/{TutorID}", profile).Methods("GET", "PUT")
 
 	//3.6.3 View mod assigned.
 	//3.6.4 View class assigned.
