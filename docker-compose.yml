@@ -28,12 +28,12 @@ services:
     build:
       context: ./Testing
       dockerfile: Dockerfile
+    depends_on
     container_name: testingcontainer
     ports:
       - 9032:9032
     image: jiameelorh/eti-testcontainer
 
 networks:
-  default: null
-volumes:
-  ridesharevol: null
+  s10192803networkbridge:
+    driver: s10192803bridge
