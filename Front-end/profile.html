@@ -46,7 +46,7 @@
         var tutorID = form.TutorID;
         var jsonString ={};
         var key = "?key=2c78afaf-97da-4816-bbee-9ad239abb296";
-        url = "http://localhost:9031/api/v1/tutor/profile/"+form+"/'Password'"+key
+        url = "http://10.31.11.12:9031/api/v1/tutor/profile/"+form+"/'Password'"+key
         if(method == "PUT"){
           event.preventDefault()
           const FormDataValue = new FormData(form); //Collect form data
@@ -54,7 +54,7 @@
           for(let[name,value] of new FormData(form)){
             if(name == "TutorID") {
               jsonString[name] = parseInt(value);
-              url = "http://localhost:9031/api/v1/tutor/profile/"+value+"/'Password'"+key
+              url = "http://10.31.11.12:9031/api/v1/tutor/profile/"+value+"/'Password'"+key
             }
             else jsonString[name] = value
           }

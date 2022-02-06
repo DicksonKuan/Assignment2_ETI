@@ -45,14 +45,14 @@
       function APIFunction(){
         $.ajax({
           type: "GET",
-          url: 'http://localhost:9031/api/v1/tutor/getAllTutor',
+          url: 'http://10.31.11.12:9031/api/v1/tutor/getAllTutor',
           contentType: "application/json",
           dataType: "json",
           crossDomain: true,
           success: function(result, status, xhr){
             var table = $("<table class='table text-left'><thead class='thead-light text-center'><tr><th scope='col' colspan='3'>Tutors rating and comments</th></tr></thead>");
             for(var i in result){
-                button = "<a href='http://localhost:9040/Main/comments.html?id="+result[i]["TutorID"]+"&type=Tutor' class='btn btn-primary'>Rating and comments</a>"
+                button = "<a href='http://10.31.11.12:9040/Main/comments.html?id="+result[i]["TutorID"]+"&type=Tutor' class='btn btn-primary'>Rating and comments</a>"
                 table.append("<tr><td>Name:</td><td class='text-left'>" + result[i]["Name"] + "</td><td>"+button+"</td></tr>");
             }
             $("#dataTable").html(table);
