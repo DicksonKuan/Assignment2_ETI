@@ -31,9 +31,6 @@
               <a class="nav-link active" href="#">Module</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="findTutor.html">Find tutors</a>
-            </li>
-            <li class="nav-item">
               <a class="nav-link" href="tutorsComments.html">All tutor's rating and comments</a>
             </li>
             <li class="nav-item">
@@ -53,10 +50,14 @@
           dataType: "json",
           contentType: "application/json",
           success: function(result, status, xhr){
-            if(method == "getTutor"){
+            if(method == "getTutor" || method == "getTutorByEmail"){
               $("#tutorName").html(result["FirstName"]+" "+result["LastName"]);
-              $("#timeTable").attr("href","http://10.31.11.12:9051/api/v1/timetable/tutor/"+result["TutorID"]);
-            }else if(method == "getMods" || method == "getTutorByEmail"){
+              $("#email").html(result["Email"]);
+              $("#timeTable").attr("href","http://localhost:9040/Main/comments.html?id="+result.TutorID+"&type=Tutor");
+              $("#ratingAndComments").attr("href","http://10.31.11.12:9051/api/v1/timetable/tutor/"+result["TutorID"]);
+
+              return result["TutorID"];
+            }else if(method == "getMods"){
               var table = $('<table class="table text-left">');
               for(var i in result){
                 table.append('<thead class="thead-light"><tr><th scope="col">Mod Code: '+result[i].Code+'</th><th scope="col" colspan="3">Module: '+result[i].Name+'</th></tr></thead>');
@@ -80,7 +81,7 @@
                 }
               }
               $("#dataTable").html(table);
-            }          },
+            }},
           error: function(xhr, status, error){
             alert("Error Message: "+ xhr.responseText);
           }
@@ -96,9 +97,9 @@
              //url = "http://localhost:9181/api/v1/tutor/GetaTutorByEmail/"+value;
              url = "http://localhost:9031/api/v1/tutor/profile/1/'Password'?key=2c78afaf-97da-4816-bbee-9ad239abb296";
           }
-          APIFunction("getTutorByEmail", url);
-          APIFunction("getMods", 'http://localhost:9031/api/v1/tutor/mod/'+"getMod"+'/"1"?key=2c78afaf-97da-4816-bbee-9ad239abb296');
-          APIFunction("getClasses", 'http://localhost:9031/api/v1/tutor/mod/'+"getClassAssigned"+'/"1"?key=2c78afaf-97da-4816-bbee-9ad239abb296');
+          TutorID = APIFunction("getTutorByEmail", url);
+          APIFunction("getMods", 'http://localhost:9031/api/v1/tutor/mod/'+"getMod"+'/"'+TutorID+'"?key=2c78afaf-97da-4816-bbee-9ad239abb296');
+          APIFunction("getClasses", 'http://localhost:9031/api/v1/tutor/mod/'+"getClassAssigned"+'/"'+TutorID+'"?key=2c78afaf-97da-4816-bbee-9ad239abb296');
         }
       </script>
       <form onsubmit="SearchFunction(this)">
@@ -114,15 +115,23 @@
       </form>
 
       <div class="card text-center mt-5">
-        <div class="card-header" id="tutorName">
-          John
+        <div class="card-header" >
+          <div class="row">
+            <div class="col">
+              <p>Name: <span id="tutorName">-</span></p>
+            </div>
+            <div class="col">
+              <p>Email: <span id="email">-</span></p>
+            </div>
+          </div>
         </div>
         <div class="card-body">
           <h5 class="card-title">My Modules</h5>
           <div id="dataTable">
 
           </div>
-          <a href="#" class="btn btn-secondary btn-lg btn-block">Timetable</a>
+          <a href="#" class="btn btn-secondary btn-lg btn-block" id="timeTable">Timetable</a>
+          <a href="#" class="btn btn-secondary btn-lg btn-block" id="ratingAndComments">Rating and comments</a>
         </div>
       </div>
     </div>

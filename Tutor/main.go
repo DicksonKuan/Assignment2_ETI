@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 
 	_ "github.com/go-sql-driver/mysql"
 	handlers "github.com/gorilla/handlers"
@@ -84,9 +83,9 @@ func validKey(r *http.Request) bool {
 		return false
 	}
 }
-func getTutor(tutorID int) Tutor {
+func getTutor(tutorID string) Tutor {
 	//url := fmt.Sprintf("http://localhost:9181/api/v1/tutor/GetaTutorByEmail/%d", tutorID)
-	url := fmt.Sprintf("http://localhost:9032/api/v1/getTutor/%d", tutorID)
+	url := fmt.Sprintf("http://localhost:9032/api/v1/getTutor/%s", tutorID)
 	response, err := http.Get(url)
 	var tutor Tutor
 	if err != nil {
@@ -102,7 +101,7 @@ func getTutor(tutorID int) Tutor {
 	return tutor
 }
 
-func checkTutorExsist(tutorID int) bool {
+func checkTutorExsist(tutorID string) bool {
 	//To check if tutor exsists and information is accurate
 	url := fmt.Sprintf("http://localhost:9032/api/v1/getTutor/%d", tutorID)
 	response, err := http.Get(url)
@@ -338,9 +337,8 @@ func profile(w http.ResponseWriter, r *http.Request) {
 	var tutor Tutor
 	params := mux.Vars(r)
 	//password := params["Password"]
-	tutorIDParam := params["TutorID"]
-	tutorID, err := strconv.Atoi(tutorIDParam)
-	if tutorID == 0 || !checkTutorExsist(tutorID) || err != nil { //To check for information not empty
+	tutorID := params["TutorID"]
+	if tutorID == "" || !checkTutorExsist(tutorID) { //To check for information not empty
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		w.Write([]byte("Please supply a valid tutor's tutorID"))
 		return
@@ -366,7 +364,7 @@ func profile(w http.ResponseWriter, r *http.Request) {
 			}
 			defer r.Body.Close()
 			var newTutorData Tutor
-			err = json.Unmarshal(reqBody, &newTutorData)
+			err := json.Unmarshal(reqBody, &newTutorData)
 			if !putUser(newTutorData) || err != nil { //Check if password is empty
 				w.WriteHeader(http.StatusUnprocessableEntity)
 				w.Write([]byte("User fail to update"))
