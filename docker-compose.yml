@@ -33,7 +33,6 @@ services:
     build:
       context: ./Testing
       dockerfile: Dockerfile
-    depends_on
     container_name: testingcontainer
     ports:
       - 9032:9032
@@ -44,4 +43,3 @@ services:
 networks:
   s10192803networkbridge:
     driver: s10192803bridge
-
