@@ -270,21 +270,7 @@ func getEnrolledStudent(tutorID string) []Student {
 	}
 	return studentList
 }
-func getAllTutor() []Tutor {
-	var tutorList []Tutor
-	url := "http://localhost:9032/api/v1/getTutorList"
-	response, err := http.Get(url)
-	if err != nil {
-		fmt.Print(err.Error())
-	}
-	if response.StatusCode == http.StatusAccepted {
-		responseData, err := ioutil.ReadAll(response.Body)
-		if err != nil || json.Unmarshal([]byte(responseData), &tutorList) != nil {
-			println(err)
-		}
-	}
-	return tutorList
-}
+
 func getOtherTutor(tutorEmail string) Tutor {
 	//url := "http://localhost:5000/api/v1/tutor/" + tutorEmail
 	url := "http://localhost:9032/api/v1/getTutor/1"
@@ -434,46 +420,20 @@ func mod(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func details(w http.ResponseWriter, r *http.Request) {
-	//Get params value
-	params := mux.Vars(r)
-	method := params["method"]
-	email := params["email"]
-
-	//Check param is empty
-	if method == "" || email == "" {
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		w.Write([]byte("Please supply tutor's information and valid method"))
-		return
-	} else {
-		switch method {
-		case "getOtherTutor":
-			tutor := getOtherTutor(email)
-			if tutor == (Tutor{}) {
-				w.WriteHeader(
-					http.StatusUnprocessableEntity)
-				w.Write([]byte(
-					"Cannot find tutor"))
-			} else {
-				json.NewEncoder(w).Encode(tutor)
-				w.WriteHeader(http.StatusAccepted)
-			}
-		case "viewTutorProfile":
-			tutor := viewTutorProfile(email)
-			if tutor == (Tutor{}) {
-				w.WriteHeader(
-					http.StatusUnprocessableEntity)
-				w.Write([]byte(
-					"Cannot find tutor"))
-			} else {
-				json.NewEncoder(w).Encode(tutor)
-				w.WriteHeader(http.StatusAccepted)
-			}
-		case "getAllTutor":
-			var tutorList []Tutor
-			tutorList = getAllTutor()
-			json.NewEncoder(w).Encode(tutorList)
+	var tutorList []Tutor
+	//url := "http://localhost:9181/api/v1/tutor/GetAllTutor"
+	url := "http://localhost:9032/api/v1/getTutorList"
+	response, err := http.Get(url)
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+	if response.StatusCode == http.StatusAccepted {
+		responseData, err := ioutil.ReadAll(response.Body)
+		if err != nil || json.Unmarshal([]byte(responseData), &tutorList) != nil {
+			println(err)
 		}
 	}
+	json.NewEncoder(w).Encode(tutorList)
 }
 
 //Main
@@ -500,10 +460,9 @@ func main() {
 	//3.6.5 view timetable.
 	//3.6.6 view enrolled students.
 	//3.6.9 View other tutor's profile, modules, class, timetable, ratings and comments.
-
 	router.HandleFunc("/api/v1/tutor/mod/{method}/{TutorID}", mod).Methods("GET")
 
-	//router.HandleFunc("/api/v1/tutor/details/{method}/{email}", details).Methods("GET")
+	router.HandleFunc("/api/v1/tutor/getAllTutor", details).Methods("GET")
 
 	//Establish port
 	//checkMicroservices()
