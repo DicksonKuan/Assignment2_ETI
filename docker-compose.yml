@@ -42,4 +42,4 @@ services:
 
 networks:
   s10192803networkbridge:
-    driver: s10192803bridge
+    driver: bridge
