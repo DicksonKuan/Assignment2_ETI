@@ -28,7 +28,7 @@
         <div class="collapse navbar-collapse" id="navbarScroll">
           <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
             <li class="nav-item">
-              <a class="nav-link" href="index.html">Module</a>
+              <a class="nav-link" href="index.html">Tutor Details</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="tutorsComments.html">All tutor's rating and comments</a>
@@ -67,8 +67,7 @@
           contentType: "application/json",
           success: function(result, status, xhr){
             $("#TutorID").val(result.TutorID);
-            $("#FirstName").val(result.FirstName);
-            $("#LastName").val(result.LastName);
+            $("#Name").val(result.Name);
             $("#Email").val(result.Email);
             $("#Description").val(result.Description);
           },
@@ -109,12 +108,8 @@
             <input type="text" name="TutorID" class="form-control" id="TutorID" hidden>
           </div>
           <div class="form-group">
-            <label for="Name">First name</label>
-            <input type="text" name="FirstName" value="" class="form-control" id="FirstName">
-          </div>
-          <div class="form-group">
-            <label for="LastName">Last name</label>
-            <input type="text" name="LastName" value="" class="form-control" id="LastName">
+            <label for="Name">Name</label>
+            <input type="text" name="Name" value="" class="form-control" id="Name">
           </div>
           <div class="form-group">
             <label for="Email">Email</label>

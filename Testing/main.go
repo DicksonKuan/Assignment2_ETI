@@ -14,8 +14,7 @@ import (
 //Classes
 type Tutor struct {
 	TutorID     int    `json: "TutorID"`
-	FirstName   string `json: "firstname"`
-	LastName    string `json: "lastname"`
+	Name        string `json: "name"`
 	Email       string `json: "email"`
 	Description string `json: "descriptions"`
 }
@@ -76,8 +75,7 @@ func test(w http.ResponseWriter, r *http.Request) {
 func getTutor(w http.ResponseWriter, r *http.Request) {
 	var tutor Tutor
 	tutor.TutorID = 1
-	tutor.FirstName = "John"
-	tutor.LastName = "Lee"
+	tutor.Name = "John Lee"
 	tutor.Email = "JohnLee@np.com"
 	tutor.Description = "Hello world"
 	w.WriteHeader(http.StatusAccepted)
@@ -89,16 +87,14 @@ func getTutorList(w http.ResponseWriter, r *http.Request) {
 	var tutorList []Tutor
 	var tutor Tutor
 	tutor.TutorID = 1
-	tutor.FirstName = "John"
-	tutor.LastName = "Lee"
+	tutor.Name = "John Lee"
 	tutor.Email = "JohnLee@np.com"
 	tutor.Description = "Hello world"
 
 	var tutor1 Tutor
-	tutor1.TutorID = 1
-	tutor1.FirstName = "John"
-	tutor1.LastName = "Lee"
-	tutor1.Email = "JohnLee@np.com"
+	tutor1.TutorID = 2
+	tutor1.Name = "Susan"
+	tutor1.Email = "SusanLee@np.com"
 	tutor1.Description = "Hello world"
 
 	tutorList = append(tutorList, tutor)
