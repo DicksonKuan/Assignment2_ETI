@@ -11,7 +11,7 @@ The microservices are loosely cooupled and working together. Therefore, after do
 To ensure that the front-end would be able to display all the relevant information that can will be connected to other microservices. The back-end microservice would connect to the Moudle management, tutor managment, Class manaegement, Rating and comments and timetable microservice. This layer also acts as a layer to filter and relate the different class structure together before pushing it to the front-end to display. Lastly, this layer would act as an Anti-corruption layer as it would check the quality of the data before pushing it as JSON. This Microservice uses JSON, REST APIs to pass data from the backend to the front end.
 
 ## 2. Design Consideration of your microservice
-![alt text](https://github.com/DicksonKuan/Assignment2_ETI/diagram.png?raw=true)
+![alt text](https://github.com/DicksonKuan/Assignment2_ETI/blob/main/diagram.png)
 
 ## 3. Link to container images
 ```
