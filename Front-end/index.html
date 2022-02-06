@@ -141,9 +141,8 @@
     <script type="text/javascript">
       function APITest(){
         $.ajax({
-          url:"http://localhost:9031/api/v1/tutor",
+          url:"http://10.31.11.12:9031/api/v1/tutor",
           contentType: "application/json",
-          headers: {"X-My-Custom-Header": "*"},
           success: function(result,status, xhr){
             $("#status").text("API status: Working");
           },
