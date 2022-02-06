@@ -170,9 +170,9 @@
       };
       var TutorID = getUrlParameter("TutorID");
       if(TutorID != false){
-        APIFunction("getTutor", "http://10.31.11.12:9031/api/v1/tutor/profile?key=2c78afaf-97da-4816-bbee-9ad239abb296");
-        APIFunction("getMods", 'http://10.31.11.12:9031/api/v1/tutor/mod/'+"getMod"+'/"1"?key=2c78afaf-97da-4816-bbee-9ad239abb296');
-        APIFunction("getClasses", 'http://10.31.11.12:9031/api/v1/tutor/mod/'+"getClassAssigned"+'/"1"?key=2c78afaf-97da-4816-bbee-9ad239abb296');
+        APIFunction("getTutor", "http://10.31.11.12:9031/api/v1/tutor/profile/"+TutorID+"?key=2c78afaf-97da-4816-bbee-9ad239abb296");
+        APIFunction("getMods", 'http://10.31.11.12:9031/api/v1/tutor/mod/'+"getMod"+'/'+TutorID+'?key=2c78afaf-97da-4816-bbee-9ad239abb296');
+        APIFunction("getClasses", 'http://10.31.11.12:9031/api/v1/tutor/mod/'+"getClassAssigned"+'/'+TutorID+'?key=2c78afaf-97da-4816-bbee-9ad239abb296');
       }else{
         alert("Cannot find tutor");
       }
