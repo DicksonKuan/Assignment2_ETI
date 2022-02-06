@@ -21,7 +21,7 @@
     <!-- navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#"></a>
+        <a class="navbar-brand" href="#">EduFi</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -29,9 +29,6 @@
           <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
             <li class="nav-item">
               <a class="nav-link active" href="#">Module</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="findTutor.html">Find tutors</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="tutorsComments.html">All tutor's rating and comments</a>
@@ -46,17 +43,20 @@
 
     <!-- Body -->
     <script type="text/javascript">
-      function APIFunction(method, url, data){
+      function APIFunction(method, url){
         $.ajax({
           type: "GET",
           url: url,
           dataType: "json",
-          data: JSON.stringify(data),
           contentType: "application/json",
           success: function(result, status, xhr){
-            if(method == "getTutor"){
+            if(method == "getTutor" || method == "getTutorByEmail"){
               $("#tutorName").html(result["FirstName"]+" "+result["LastName"]);
-              $("#timeTable").attr("href","http://10.31.11.12:9051/api/v1/timetable/tutor/"+result["TutorID"]);
+              $("#email").html(result["Email"]);
+              $("#timeTable").attr("href","http://localhost:9040/Main/comments.html?id="+result.TutorID+"&type=Tutor");
+              $("#ratingAndComments").attr("href","http://10.31.11.12:9051/api/v1/timetable/tutor/"+result["TutorID"]);
+
+              return result["TutorID"];
             }else if(method == "getMods"){
               var table = $('<table class="table text-left">');
               for(var i in result){
@@ -73,9 +73,15 @@
                   table.append("<td>Capacity: "+result[i]["Classes"][k]["Capacity"]+"</td>");
                   table.append("</tr>");
                 }
+                for(var x in result[i]["EnrolledStudent"]){
+                  table.append("<tr>");
+                  table.append("<th scope='row'>StudentID: "+result[i]["EnrolledStudent"][x]["StudentID"]+"</th>");
+                  table.append("<td colspan='3'>Name: "+result[i]["EnrolledStudent"][x]["Name"]+"</td>");
+                  table.append("</tr>");
+                }
               }
               $("#dataTable").html(table);
-            }          },
+            }},
           error: function(xhr, status, error){
             alert("Error Message: "+ xhr.responseText);
           }
@@ -83,16 +89,49 @@
       }
     </script>
     <div class="container w-100 mt-5">
-      <div class="card text-center">
-        <div class="card-header" id="tutorName">
-          John
+      <script>
+        function SearchFunction(form){
+          event.preventDefault(); //Prevent refreshing webpage
+          const FormDataValue = new FormData(form); //Collect form data
+          for(let [name, value] of FormDataValue) {
+             //url = "http://localhost:9181/api/v1/tutor/GetaTutorByEmail/"+value;
+             url = "http://localhost:9031/api/v1/tutor/profile/1/'Password'?key=2c78afaf-97da-4816-bbee-9ad239abb296";
+          }
+          TutorID = APIFunction("getTutorByEmail", url);
+          APIFunction("getMods", 'http://localhost:9031/api/v1/tutor/mod/'+"getMod"+'/"'+TutorID+'"?key=2c78afaf-97da-4816-bbee-9ad239abb296');
+          APIFunction("getClasses", 'http://localhost:9031/api/v1/tutor/mod/'+"getClassAssigned"+'/"'+TutorID+'"?key=2c78afaf-97da-4816-bbee-9ad239abb296');
+        }
+      </script>
+      <form onsubmit="SearchFunction(this)">
+        <div class="input-group w-50">
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="basic-addon1">Tutor Email:</span>
+          </div>
+          <input type="text" name="TutorEmail" value="" class="form-control" id="TutorEmail">
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="submit">Submit</button>
+          </div>
+        </div>
+      </form>
+
+      <div class="card text-center mt-5">
+        <div class="card-header" >
+          <div class="row">
+            <div class="col">
+              <p>Name: <span id="tutorName">-</span></p>
+            </div>
+            <div class="col">
+              <p>Email: <span id="email">-</span></p>
+            </div>
+          </div>
         </div>
         <div class="card-body">
           <h5 class="card-title">My Modules</h5>
           <div id="dataTable">
 
           </div>
-          <a href="#" class="btn btn-secondary btn-lg btn-block">Timetable</a>
+          <a href="#" class="btn btn-secondary btn-lg btn-block" id="timeTable">Timetable</a>
+          <a href="#" class="btn btn-secondary btn-lg btn-block" id="ratingAndComments">Rating and comments</a>
         </div>
       </div>
     </div>
@@ -130,9 +169,9 @@
       };
       var TutorID = getUrlParameter("TutorID");
       if(TutorID != false){
-        APIFunction("getTutor", "http://localhost:9031/api/v1/tutor/profile/1/'Password'?key=2c78afaf-97da-4816-bbee-9ad239abb296",TutorID);
-        APIFunction("getMods", 'http://localhost:9031/api/v1/tutor/mod/'+"getMod"+'/"1"?key=2c78afaf-97da-4816-bbee-9ad239abb296',TutorID);
-        APIFunction("getClasses", 'http://localhost:9031/api/v1/tutor/mod/'+"getClassAssigned"+'/"1"?key=2c78afaf-97da-4816-bbee-9ad239abb296',TutorID);
+        APIFunction("getTutor", "http://localhost:9031/api/v1/tutor/profile/1/'Password'?key=2c78afaf-97da-4816-bbee-9ad239abb296");
+        APIFunction("getMods", 'http://localhost:9031/api/v1/tutor/mod/'+"getMod"+'/"1"?key=2c78afaf-97da-4816-bbee-9ad239abb296');
+        APIFunction("getClasses", 'http://localhost:9031/api/v1/tutor/mod/'+"getClassAssigned"+'/"1"?key=2c78afaf-97da-4816-bbee-9ad239abb296');
       }else{
         alert("Cannot find tutor");
       }

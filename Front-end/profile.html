@@ -21,7 +21,7 @@
     <!-- navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">Ngee ann</a>
+        <a class="navbar-brand" href="#">EduFi</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -29,9 +29,6 @@
           <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
             <li class="nav-item">
               <a class="nav-link" href="index.html">Module</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="findTutor.html">Find tutors</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="tutorsComments.html">All tutor's rating and comments</a>
@@ -47,20 +44,24 @@
     <script type="text/javascript">
       function API(form,method){
         var tutorID = form.TutorID;
-        var jsonString ={}
+        var jsonString ={};
+        var key = "?key=2c78afaf-97da-4816-bbee-9ad239abb296";
+        url = "http://localhost:9031/api/v1/tutor/profile/"+form+"/'Password'"+key
         if(method == "PUT"){
           event.preventDefault()
           const FormDataValue = new FormData(form); //Collect form data
           tutorID = form.TutorID.value;
           for(let[name,value] of new FormData(form)){
-            if(name == "TutorID") jsonString[name] = parseInt(value);
+            if(name == "TutorID") {
+              jsonString[name] = parseInt(value);
+              url = "http://localhost:9031/api/v1/tutor/profile/"+value+"/'Password'"+key
+            }
             else jsonString[name] = value
           }
         }
-        var key = "?key=2c78afaf-97da-4816-bbee-9ad239abb296";
         $.ajax({
           type: method,
-          url: "http://localhost:9031/api/v1/tutor/profile/"+form+"/'Password'"+key,
+          url: url,
           dataType: "json",
           data: JSON.stringify(jsonString),
           contentType: "application/json",
@@ -105,7 +106,7 @@
       <div id="dataTable">
         <form class="" onsubmit="API(this, 'PUT')" method="post">
           <div class="form-group">
-            <input type="number" name="TutorID" value=1 class="form-control" id="TutorID" hidden>
+            <input type="text" name="TutorID" class="form-control" id="TutorID" hidden>
           </div>
           <div class="form-group">
             <label for="Name">First name</label>
