@@ -13,6 +13,9 @@ services:
       restart_policy:
         condition: on-failure
     image: jiameelorh/eti-tutorfrontend
+    networks:
+      - s10192803networkbridge
+
   # Tutor Microservice
   tutorcontainerS10192803:
     build:
@@ -22,6 +25,8 @@ services:
     ports:
       - 9031:9031
     image: jiameelorh/eti-tutorcontainer
+    networks:
+      - s10192803networkbridge
 
   # Testing Microservice
   testingcontainer:
@@ -33,7 +38,10 @@ services:
     ports:
       - 9032:9032
     image: jiameelorh/eti-testcontainer
+    networks:
+      - s10192803networkbridge
 
 networks:
   s10192803networkbridge:
     driver: s10192803bridge
+
