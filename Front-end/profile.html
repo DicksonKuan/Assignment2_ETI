@@ -46,7 +46,7 @@
         var tutorID = form.TutorID;
         var jsonString ={};
         var key = "?key=2c78afaf-97da-4816-bbee-9ad239abb296";
-        url = "http://10.31.11.12:9031/api/v1/tutor/profile/"+form+"/'Password'"+key
+        url = "http://10.31.11.12:9031/api/v1/tutor/profile/"+form+key
         if(method == "PUT"){
           event.preventDefault()
           const FormDataValue = new FormData(form); //Collect form data

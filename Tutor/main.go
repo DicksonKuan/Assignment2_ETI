@@ -83,8 +83,8 @@ func validKey(r *http.Request) bool {
 	}
 }
 func getTutor(tutorID string) Tutor {
-	//url := fmt.Sprintf("http://localhost:9181/api/v1/tutor/GetaTutorByEmail/%d", tutorID)
-	url := fmt.Sprintf("http://localhost:9032/api/v1/getTutor/%s", tutorID)
+	//url := fmt.Sprintf("http://10.31.11.12:9181/api/v1/tutor/GetaTutorByEmail/%d", tutorID)
+	url := fmt.Sprintf("http://10.31.11.12:9032/api/v1/getTutor/%s", tutorID)
 	response, err := http.Get(url)
 	var tutor Tutor
 	if err != nil {
@@ -102,7 +102,7 @@ func getTutor(tutorID string) Tutor {
 
 func checkTutorExsist(tutorID string) bool {
 	//To check if tutor exsists and information is accurate
-	url := fmt.Sprintf("http://localhost:9032/api/v1/getTutor/%s", tutorID)
+	url := fmt.Sprintf("http://10.31.11.12:9032/api/v1/getTutor/%s", tutorID)
 	response, err := http.Get(url)
 	if err != nil {
 		fmt.Print(err.Error())
@@ -124,8 +124,8 @@ func checkTutorExsist(tutorID string) bool {
 
 func putUser(tutor Tutor) bool { //Update tutor's profile
 	jsonValue, _ := json.Marshal(tutor)
-	//URL := "http://localhost:9181/api/v1/tutor/UpdateTutorAccountByEmail/" + tutor.Email
-	URL := "http://localhost:9032/api/v1/putTutor"
+	//URL := "http://10.31.11.12:9181/api/v1/tutor/UpdateTutorAccountByEmail/" + tutor.Email
+	URL := "http://10.31.11.12:9032/api/v1/putTutor"
 
 	request, err := http.NewRequest(http.MethodPut,
 		URL,
@@ -154,7 +154,7 @@ func putUser(tutor Tutor) bool { //Update tutor's profile
 
 func getMod(tutorID string) []Module { //get mod from mod microservice
 	//URL := http://10.31.11.12:9061/module/v1/modules/+tutorID
-	URL := "http://localhost:9032/api/v1/getMod"
+	URL := "http://10.31.11.12:9032/api/v1/getMod"
 	response, err := http.Get(URL)
 	if err != nil {
 		fmt.Print(err.Error())
@@ -179,8 +179,8 @@ func getMod(tutorID string) []Module { //get mod from mod microservice
 				mods.LearningObjective = data.Synopsis
 				mods.AssignedTutor = tutorID
 				//GET all classes
-				//url := "http://localhost:9101/api/v1/class?key=2c78afaf-97da-4816-bbee-9ad239abb296"
-				url := "http://localhost:9032/api/v1/getClasses"
+				//url := "http://10.31.11.12:9101/api/v1/class?key=2c78afaf-97da-4816-bbee-9ad239abb296"
+				url := "http://10.31.11.12:9032/api/v1/getClasses"
 				response, err := http.Get(url)
 				if err != nil {
 					fmt.Print(err.Error())
@@ -206,7 +206,7 @@ func getMod(tutorID string) []Module { //get mod from mod microservice
 				}
 				//GET all Student
 				//url = "http://10.31.11.12:9211/api/v1/students/"
-				url = "http://localhost:9032/api/v1/getStudent"
+				url = "http://10.31.11.12:9032/api/v1/getStudent"
 				response, err = http.Get(url)
 				if err != nil {
 					fmt.Print(err.Error())
@@ -272,8 +272,8 @@ func getEnrolledStudent(tutorID string) []Student {
 }
 
 func getOtherTutor(tutorEmail string) Tutor {
-	//url := "http://localhost:5000/api/v1/tutor/" + tutorEmail
-	url := "http://localhost:9032/api/v1/getTutor/1"
+	//url := "http://10.31.11.12:5000/api/v1/tutor/" + tutorEmail
+	url := "http://10.31.11.12:9032/api/v1/getTutor/1"
 	response, err := http.Get(url)
 	var tutor Tutor
 
@@ -290,8 +290,8 @@ func getOtherTutor(tutorEmail string) Tutor {
 }
 
 func viewTutorProfile(tutorEmail string) Tutor {
-	//url := "http://localhost:5000/api/v1/tutor/" + tutorEmail
-	url := "http://localhost:9032/api/v1/getTutor/1"
+	//url := "http://10.31.11.12:5000/api/v1/tutor/" + tutorEmail
+	url := "http://10.31.11.12:9032/api/v1/getTutor/1"
 	response, err := http.Get(url)
 	var tutor Tutor
 
@@ -421,8 +421,8 @@ func mod(w http.ResponseWriter, r *http.Request) {
 }
 func details(w http.ResponseWriter, r *http.Request) {
 	var tutorList []Tutor
-	//url := "http://localhost:9181/api/v1/tutor/GetAllTutor"
-	url := "http://localhost:9032/api/v1/getTutorList"
+	//url := "http://10.31.11.12:9181/api/v1/tutor/GetAllTutor"
+	url := "http://10.31.11.12:9032/api/v1/getTutorList"
 	response, err := http.Get(url)
 	if err != nil {
 		fmt.Print(err.Error())
