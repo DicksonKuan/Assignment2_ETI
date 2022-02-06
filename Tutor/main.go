@@ -16,8 +16,7 @@ import (
 //Official Classes
 type Tutor struct {
 	TutorID     int    `json: "TutorID"`
-	FirstName   string `json: "firstname"`
-	LastName    string `json: "lastname"`
+	Name        string `json: "name"`
 	Email       string `json: "email"`
 	Description string `json: "descriptions"`
 }
@@ -103,7 +102,7 @@ func getTutor(tutorID string) Tutor {
 
 func checkTutorExsist(tutorID string) bool {
 	//To check if tutor exsists and information is accurate
-	url := fmt.Sprintf("http://localhost:9032/api/v1/getTutor/%d", tutorID)
+	url := fmt.Sprintf("http://localhost:9032/api/v1/getTutor/%s", tutorID)
 	response, err := http.Get(url)
 	if err != nil {
 		fmt.Print(err.Error())
