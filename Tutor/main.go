@@ -490,6 +490,8 @@ func main() {
 
 	//3.6.1 View particular.
 	//3.6.2 Update particular.
+	//3.6.7 List all tutors with ratings.
+	//3.6.8 Search for other tutors.
 	//JSON, get data using tutorID and tutorPassword
 	router.HandleFunc("/api/v1/tutor/profile/{TutorID}", profile).Methods("GET", "PUT")
 
@@ -497,12 +499,11 @@ func main() {
 	//3.6.4 View class assigned.
 	//3.6.5 view timetable.
 	//3.6.6 view enrolled students.
+	//3.6.9 View other tutor's profile, modules, class, timetable, ratings and comments.
+
 	router.HandleFunc("/api/v1/tutor/mod/{method}/{TutorID}", mod).Methods("GET")
 
-	//3.6.7 List all tutors with ratings.
-	//3.6.8 Search for other tutors.
-	//3.6.9 View other tutor's profile, modules, class, timetable, ratings and comments.
-	router.HandleFunc("/api/v1/tutor/details/{method}/{email}", details).Methods("GET")
+	//router.HandleFunc("/api/v1/tutor/details/{method}/{email}", details).Methods("GET")
 
 	//Establish port
 	//checkMicroservices()

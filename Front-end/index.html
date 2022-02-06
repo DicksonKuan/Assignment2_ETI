@@ -51,7 +51,7 @@
           contentType: "application/json",
           success: function(result, status, xhr){
             if(method == "getTutor" || method == "getTutorByEmail"){
-              $("#tutorName").html(result["FirstName"]+" "+result["LastName"]);
+              $("#tutorName").html(result["Name"]);
               $("#email").html(result["Email"]);
               $("#timeTable").attr("href","http://localhost:9040/Main/comments.html?id="+result.TutorID+"&type=Tutor");
               $("#ratingAndComments").attr("href","http://10.31.11.12:9051/api/v1/timetable/tutor/"+result["TutorID"]);
@@ -95,7 +95,7 @@
           const FormDataValue = new FormData(form); //Collect form data
           for(let [name, value] of FormDataValue) {
              //url = "http://localhost:9181/api/v1/tutor/GetaTutorByEmail/"+value;
-             url = "http://localhost:9031/api/v1/tutor/profile/1/'Password'?key=2c78afaf-97da-4816-bbee-9ad239abb296";
+             url = "http://localhost:9031/api/v1/tutor/profile/1?key=2c78afaf-97da-4816-bbee-9ad239abb296";
           }
           TutorID = APIFunction("getTutorByEmail", url);
           APIFunction("getMods", 'http://localhost:9031/api/v1/tutor/mod/'+"getMod"+'/"'+TutorID+'"?key=2c78afaf-97da-4816-bbee-9ad239abb296');
@@ -169,7 +169,7 @@
       };
       var TutorID = getUrlParameter("TutorID");
       if(TutorID != false){
-        APIFunction("getTutor", "http://localhost:9031/api/v1/tutor/profile/1/'Password'?key=2c78afaf-97da-4816-bbee-9ad239abb296");
+        APIFunction("getTutor", "http://localhost:9031/api/v1/tutor/profile/?key=2c78afaf-97da-4816-bbee-9ad239abb296");
         APIFunction("getMods", 'http://localhost:9031/api/v1/tutor/mod/'+"getMod"+'/"1"?key=2c78afaf-97da-4816-bbee-9ad239abb296');
         APIFunction("getClasses", 'http://localhost:9031/api/v1/tutor/mod/'+"getClassAssigned"+'/"1"?key=2c78afaf-97da-4816-bbee-9ad239abb296');
       }else{
