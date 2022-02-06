@@ -163,6 +163,8 @@ http://10.31.11.12:9031/api/v1/tutor/details
 Response:
 Status code 200 if successful, else an error code with a corresponding status message will be returned if unsuccessful. 
 ```
+## Sample of Comment jsonstring returned for GET request:
+```
 [
     {
         "TutorID":"1",
